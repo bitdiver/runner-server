@@ -1,0 +1,29 @@
+language: node_js
+node_js:
+- 8.9.1
+sudo: false
+branches:
+  only:
+  - master
+  - /^greenkeeper-.*$/
+  - /^greenkeeper/.*$/
+cache:
+  directories:
+  - node_modules
+notifications:
+  email:
+  - torstenlink@gmx.de
+  - markus.felten@gmx.de
+  slack:
+    secure: 0PlqmmipoN+3J8hT8zq06FSEDoF3sBPV1Gl/QK9psceUP7DaGxmmQ6/7GyyGQ0H81Y32uv+WzbzdQVRGVI+0tZ3DDvERhBGjfcVqCg+PNzGl8L3ys1HtIjesfXN03X5/vzV3wM+AE1Mn08OaULQ9RufaA6VusBQix8yl2AHfnTSKlYH5kz7LVoUT4whrQlUvDSss+lROLA0fCD1SgetkGlFz30Liz5hp9T7FXVsOAt34mEVLLHIuzkwcW8pxWAQ+rGr2RsY9XyvT58/VCQDV+gqLeiLb7UattR8raOpx7iIj0JFgs/3IjfVyxijczV8fmufC5W7BraYZp7ZsMvBwNvXAPRohPbqDvlSw61KlF9CoXjZM9FHyflOPGs7eeeRlB6qLk6mhGgDd9d+gnw7Go+jtnaIx0cKs8oiTZ7zvCuu4kKCU/ycl3ISlKNEpkf+TtDPTMPrVuM+bG9v+yQ2t8uPAfSN46RCFpaWQFUqk7OhBRkxP0SVAdJkjoJPm0IViM8m2Ttp9S6QonOmbQQSnh6yL97fT4bSo0KPMQMbbbY2FNEdyFNJzpkKP4Y6ZWo1VKRAx1UenX8AWyEIJbN9m3AmLlyZChCAbm7N/hQtttdibR0voAQJASW4Hkjyunpl3PFzjMZRjCxzqEy+5wgQd6ynFyIodluI84D30GpG65hA=
+before_install:
+- npm i -g npm@latest
+before_script:
+- npm prune
+- npm install -g codecov
+script:
+- npm run test
+after_script:
+- codecov
+after_success:
+- npm run semantic-release

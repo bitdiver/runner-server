@@ -1,0 +1,61 @@
+{
+  "name": "@bitdiver/runner-server",
+  "version": "0.0.0-semantic-release",
+  "description": "",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitdiver/runner-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bitdiver/runner-server/issues"
+  },
+  "homepage": "https://github.com/bitdiver/runner-server#readme",
+  "scripts": {
+    "build": "npm run src_format && npm run src_lint && babel src -d lib",
+    "src_lint": "eslint src tests",
+    "src_format": "prettier --no-semi --single-quote --trailing-comma es5 --write \"{src,tests}/**/*.js\"",
+    "test_only": "jest",
+    "test": "npm run src_format && npm run src_lint && npm run build && jest -c jest.config.json",
+    "semantic-release": "semantic-release pre && npm publish --access public && semantic-release post",
+    "debug": "npm run build && node --inspect-brk ./node_modules/.bin/jest -i --config=./jest.config.json",
+    "prepublish": "npm run build"
+  },
+  "contributors": [
+    {
+      "name": "Torsten Link",
+      "email": "torstenlink@gmx.de"
+    },
+    {
+      "name": "Markus Felten",
+      "email": "markus.felten@gmx.de"
+    }
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.26.0",
+    "cz-conventional-changelog": "^2.1.0",
+    "eslint": "^4.12.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-babel": "^4.0.0",
+    "jest": "^21.2.1",
+    "jest-cli": "^21.2.1",
+    "jest-environment-node-debug": "^2.0.0",
+    "prettier": "^1.8.2",
+    "regenerator-runtime": "^0.11.0",
+    "semantic-release": "^8.2.3"
+  },
+  "dependencies": {
+    "uuid": "^3.1.0"
+  }
+}
