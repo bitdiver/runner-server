@@ -3,7 +3,7 @@
     ["env",
       {
         "targets":{
-          "node":8
+          "node":"9.3"
         }
       }
     ]

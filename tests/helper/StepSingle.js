@@ -30,6 +30,16 @@ export default class StepSingle extends StepNormal {
         }
       }
     })
-    return Promise.resolve()
+    return new Promise(resolve => {
+      const min = 10
+      const max = 500
+      const time = Math.floor(Math.random() * (max - min)) + min
+      setTimeout(() => {
+        console.log(
+          `Execute Single Step '${this.name}' with method '${method}''`
+        )
+        resolve(1)
+      }, time)
+    })
   }
 }
