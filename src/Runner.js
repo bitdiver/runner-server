@@ -6,6 +6,8 @@ const uuidV4 = uuid.v4
 
 import { getLogAdapter, LEVEL_INFO, LEVEL_ERROR } from './LogAdapterFile'
 
+import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
+
 import {
   STEP_TYPE_NORMAL,
   STEP_TYPE_SINGLE,
@@ -43,7 +45,7 @@ export default class Runner {
     this.environmentRun = undefined
 
     // A map storing all the testcase environments by there instance ID
-    this.environmentTestcase = undefined
+    this.environmentTestcaseMap = undefined
 
     // just store the test case instance ids in the order of the testcase
     this.environmentTestcaseIds = undefined
@@ -68,13 +70,20 @@ export default class Runner {
   async run(suite, opts) {
     if (this.stepRegistry === undefined) {
       console.log(`The stepregistry is not defined`)
-    } else if (suite.testcases.length > 0 && suite.steps.length > 0) {
+    } else if (this._validateSuite(suite)) {
       this._prepare(suite)
       this._createEnvironments(suite)
-      await this._doRun(opts)
-    } else {
-      console.log(`ERROR: The suite contains no testcases or no steps`)
+      if (suite.executionMode === EXECUTION_MODE_BATCH) {
+        await this._doRunBatch(opts)
+      } else {
+        await this._doRunNormal(opts)
+      }
     }
+  }
+
+  async _doRunNormal() {
+    // TODO
+    // The testcases will be executed one after another
   }
 
   /**
@@ -82,17 +91,25 @@ export default class Runner {
    * @param opts {object} Options for the execution.
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
-  async _doRun(opts = {}) {
+  async _doRunBatch(opts = {}) {
     await this._logStartRun()
 
     const testMode = opts.testMode ? opts.testMode : false
 
-    // first iterate the steps and then the testscases
-    for (let i = 0; i < this.steps.length; i++) {
-      const stepDefinition = this.steps[i]
-      const stepData = stepDefinition.data
+    // To get the step ids we need the testcase with the longest array of step ids
+    let stepIds = []
+    this.testcases.forEach(tc => {
+      if (tc.steps.length > stepIds.length) {
+        stepIds = tc.steps
+      }
+    })
 
-      if (this.environmentRun.status === STATUS_ERROR) {
+    // first iterate the steps and then the testscases
+    for (let i = 0; i < stepIds.length; i++) {
+      const stepId = stepIds[i]
+      const stepDefinition = this.steps[stepId]
+
+      if (this.environmentRun.status >= STATUS_ERROR) {
         // Stop the test run
         break
       }
@@ -100,47 +117,86 @@ export default class Runner {
       const steps = []
       let step = this.stepRegistry.getStep(stepDefinition.class)
       step.testMode = testMode
+      step.logger = this.logAdapter
+      step.environmentRun = this.environmentRun
       if (
         step.type === STEP_TYPE_SINGLE ||
         step.type === STEP_TYPE_SERVER_ONLY
       ) {
+        const stepData = []
+        this.testcases.forEach(tc => {
+          const data = tc.data[i]
+          stepData.push(data)
+        })
+
         // there is data or it runs without data
         step.name = stepDefinition.name
         step.description = stepDefinition.description
         step.data = stepData
+        step.environmentTestcase = this.environmentTestcaseMap
         steps.push(step)
-      } else if (stepData.length > 0) {
+      } else {
         let counter = 0
-        stepData.forEach(data => {
-          // get the testcase environment for this step
-          const testcaseInstanceId = this.environmentTestcaseIds[counter]
-          assert.ok(
-            testcaseInstanceId,
-            `Could not get a testcase instance id for testcase '${counter}'`
-          )
-          const environmentTestcase = this.environmentTestcase.get(
-            testcaseInstanceId
-          )
-          assert.ok(
-            environmentTestcase,
-            `Could not get a testcase environment for testcase instance id '${testcaseInstanceId}'`
-          )
-          step.environmentTestcase = environmentTestcase
+        this.testcases.forEach(tc => {
+          const data = tc.data[i]
+          if (data !== undefined || step.needData === false) {
+            // get the testcase environment for this step
+            const testcaseInstanceId = this.environmentTestcaseIds[counter]
+            assert.ok(
+              testcaseInstanceId,
+              `Could not get a testcase instance id for testcase '${counter}'`
+            )
+            const environmentTestcase = this.environmentTestcaseMap.get(
+              testcaseInstanceId
+            )
+            assert.ok(
+              environmentTestcase,
+              `Could not get a testcase environment for testcase instance id '${testcaseInstanceId}'`
+            )
+            step.environmentTestcase = environmentTestcase
+            // only execute steps for testcases which not have failed
+            if (
+              environmentTestcase.status === STATUS_OK &&
+              environmentTestcase.running
+            ) {
+              step.name = stepDefinition.name
+              step.description = stepDefinition.description
+              step.data = data
 
-          // only execute steps for testcases which not have failed
-          if (environmentTestcase.status === STATUS_OK) {
-            step.name = stepDefinition.name
-            step.description = stepDefinition.description
-            step.data = data
-
-            steps.push(step)
+              steps.push(step)
+            }
+            // create a new step instance for the next testcase
+            step = this.stepRegistry.getStep(stepDefinition.class)
+            step.testMode = testMode
+            step.logger = this.logAdapter
+            step.environmentRun = this.environmentRun
           }
           counter++
-          // create a new step instance for the next testcase
-          step = this.stepRegistry.getStep(stepDefinition.class)
         })
       }
       await this._executeSteps(steps)
+
+      // -----------------------
+      // if this was the last step for this test case, the test case could be finished
+      // -----------------------
+      let runCount = 0 // How many test cases have the status running
+      for (let tcCount = 0; tcCount < this.testcases.length; tcCount++) {
+        const tc = this.testcases[tcCount]
+        const tcId = this.environmentTestcaseIds[tcCount]
+        const environmentTestcase = this.environmentTestcaseMap.get(tcId)
+        if (environmentTestcase.running && tc.steps.length - 1 === i) {
+          environmentTestcase.running = false
+        }
+
+        if (environmentTestcase.running) {
+          runCount++
+        }
+      }
+
+      if (runCount === 0) {
+        // we can stop the suite
+        break
+      }
     }
 
     await this._logEndRun()
@@ -161,6 +217,14 @@ export default class Runner {
     await this[this.stepExecutionMethod](stepInstances, ['end'])
   }
 
+  /**
+   * Execute all instances of one Step.
+   * This method could execute the instances in parallel.
+   * @param stepInstances {array} An array of step instances. One instance per testcase
+   * @param methods {array} An array of methods which should be executed on each step instance.
+   *                        The methods will be executed in the given order
+   * @return promise {promise} A promise when all the step instances are executed
+   */
   async _executeStepMethodParallel(stepInstances, methods) {
     const promises = []
     let runningSteps = 0
@@ -180,7 +244,8 @@ export default class Runner {
 
         methods.forEach(method => {
           asyncArray.push(() => {
-            return this._logStep(stepInstance, `Step ${method}`)
+            return stepInstance.logInfo(`Step ${method}`)
+            // return this._logStep(stepInstance, `Step ${method}`)
           })
           asyncArray.push(() => {
             return stepInstance[method]()
@@ -211,19 +276,44 @@ export default class Runner {
     return Promise.all(promises)
   }
 
-  // This will execute the steps always in the same order
+  /**
+   * Execute all instances of one Step.
+   * This method will execute the steps always in the same order.
+   * @param stepInstances {array} An array of step instances. One instance per testcase
+   * @param methods {array} An array of methods which should be executed on each step instance.
+   *                        The methods will be executed in the given order
+   * @return promise {promise} A promise when all the step instances are executed
+   */
   async _executeStepMethodOrdered(stepInstances, methods) {
     for (const stepInstance of stepInstances) {
       for (const method of methods) {
-        await this._logStep(stepInstance, `Step ${method}`)
+        await stepInstance.logInfo(`Step ${method}`)
+        // await this._logStep(stepInstance, `Step ${method}`)
         try {
           await stepInstance[method]()
         } catch (err) {
-          console.log('ERROR: ', err.stack)
           await this.setStepFail(stepInstance, err)
         }
       }
     }
+  }
+
+  /**
+   * validates the suite
+   * @param suite {object} The suite definition to be executed
+   * @return status {boolean} true if the suite does not contain any errors
+   */
+  _validateSuite(suite) {
+    if (suite === undefined) {
+      throw new Error('No suite defined')
+    }
+    const errors = suite.validate()
+    if (errors.length === 0) {
+      return true
+    }
+
+    console.log(errors)
+    return false
   }
 
   /**
@@ -244,7 +334,7 @@ export default class Runner {
    */
   _createEnvironments(suite) {
     this.environmentTestcaseIds = []
-    this.environmentTestcase = new Map()
+    this.environmentTestcaseMap = new Map()
 
     // Run environment
     const envRun = new EnvironmentRun()
@@ -256,7 +346,7 @@ export default class Runner {
     suite.testcases.forEach(tcDef => {
       const envTc = new EnvironmentTestcase()
       this.environmentTestcaseIds.push(envTc.id)
-      this.environmentTestcase.set(envTc.id, envTc)
+      this.environmentTestcaseMap.set(envTc.id, envTc)
 
       envTc.name = tcDef.name
       envTc.description = tcDef.description
@@ -273,63 +363,59 @@ export default class Runner {
     stepInstance.status = STATUS_ERROR
     this.environmentRun.status = STATUS_ERROR
 
+    const promises = []
+
+    // Set testcase fail
     if (stepInstance.type === STEP_TYPE_NORMAL) {
-      stepInstance.environmentTestcase.status = STATUS_ERROR
+      this.setTestcaseFail(stepInstance.environmentTestcase)
     } else {
       this.environmentTestcaseIds.forEach(id => {
-        const env = this.environmentTestcase.get(id)
-        env.status = STATUS_ERROR
+        const env = this.environmentTestcaseMap.get(id)
+        promises.push(this.setTestcaseFail(env, err))
       })
     }
-    return this._logStep(stepInstance, err, LEVEL_ERROR)
+
+    // set run fail
+    if (this.environmentRun.status < STATUS_ERROR) {
+      promises.push(this.setRunFail(err))
+    }
+
+    promises.push(stepInstance.logError(err))
+    return Promise.all(promises)
   }
 
-  /**
-   * Logs the start of a run
-   * @param stepInstance {object} The step object
-   * @param message {object} The message to be logged
-   * @return promise {promise} A promise indicating when the log was written
-   */
-  _logStep(stepInstance, message, logLevel = LEVEL_INFO) {
-    if (stepInstance.type === STEP_TYPE_NORMAL) {
+  setTestcaseFail(environmentTestcase, err) {
+    if (
+      environmentTestcase.status < STATUS_ERROR &&
+      environmentTestcase.running
+    ) {
+      environmentTestcase.status = STATUS_ERROR
+      environmentTestcase.running = false
+      const data = typeof err === 'string' ? { message: err } : err
       const meta = {
-        timeRunStart: this.environmentRun.startTime,
-        idRun: this.environmentRun.id,
-        idTestcase: stepInstance.environmentTestcase.id,
-        idStep: stepInstance.stepInstanceId,
+        run: {
+          start: this.environmentRun.startTime,
+          id: this.environmentRun.id,
+        },
+        tc: {
+          id: environmentTestcase.id,
+          name: environmentTestcase.name,
+        },
       }
-      const data = {
-        logLevel,
-        message,
-        stepType: stepInstance.type,
-        step: stepInstance.name,
-        testcase: stepInstance.environmentTestcase.name,
-        suite: this.name,
-      }
-      return this.logAdapter.log({ meta, data })
+      return this.logAdapter.log({ meta, data, logLevel: LEVEL_ERROR })
     }
+    return Promise.resolve()
+  }
 
-    // set all testcases to FAIL
-    const promises = []
-    for (const id of this.environmentTestcaseIds) {
-      const env = this.environmentTestcase.get(id)
-      const meta = {
-        timeRunStart: this.environmentRun.startTime,
-        idRun: this.environmentRun.id,
-        idTestcase: env.id,
-        idStep: stepInstance.stepInstanceId,
-      }
-      const data = {
-        logLevel,
-        message,
-        stepType: stepInstance.type,
-        step: stepInstance.name,
-        testcase: env.name,
-        suite: this.name,
-      }
-      promises.push(this.logAdapter.log({ meta, data }))
+  setRunFail(err) {
+    const data = typeof err === 'string' ? { message: err } : err
+    const meta = {
+      run: {
+        start: this.environmentRun.startTime,
+        id: this.environmentRun.id,
+      },
     }
-    return Promise.all(promises)
+    return this.logAdapter.log({ meta, data, logLevel: LEVEL_ERROR })
   }
 
   /**
@@ -338,16 +424,17 @@ export default class Runner {
    */
   _logStartRun() {
     const meta = {
-      timeRunStart: this.environmentRun.startTime,
-      idRun: this.environmentRun.id,
+      run: {
+        start: this.environmentRun.startTime,
+        id: this.environmentRun.id,
+      },
     }
     const data = {
-      loglevel: LEVEL_INFO,
       message: 'Start Run',
       suite: this.name,
     }
 
-    return this.logAdapter.log({ meta, data })
+    return this.logAdapter.log({ meta, data, logLevel: LEVEL_INFO })
   }
 
   /**
@@ -356,16 +443,16 @@ export default class Runner {
    */
   _logEndRun() {
     const meta = {
-      timeRunStart: this.environmentRun.startTime,
-      idRun: this.environmentRun.id,
+      run: {
+        start: this.environmentRun.startTime,
+        id: this.environmentRun.id,
+      },
     }
     const data = {
-      loglevel: LEVEL_INFO,
       message: 'Stop Run',
       suite: this.name,
       status: this.environmentRun.status,
     }
-
-    return this.logAdapter.log({ meta, data })
+    return this.logAdapter.log({ meta, data, logLevel: LEVEL_INFO })
   }
 }

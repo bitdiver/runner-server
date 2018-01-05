@@ -35,9 +35,9 @@ export default class StepSingle extends StepNormal {
       const max = 500
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
-        console.log(
-          `Execute Single Step '${this.name}' with method '${method}''`
-        )
+        // console.log(
+        //   `Execute Single Step '${this.name}' with method '${method}''`
+        // )
         resolve(1)
       }, time)
     })

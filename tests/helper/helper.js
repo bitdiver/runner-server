@@ -15,7 +15,7 @@ import StepSingle from './StepSingle'
  * @param testcaseCount {number} The amount of testcases to be created
  * @param stepCount {number} The amount of steps to be created
  * @param singleSteps {array} This array defines which steps are single steps. Just set a value where a step should be a single step
- * @return suite {object} The suie definition object
+ * @return suite {object} The suite definition object
  */
 export function createSuite(opts = {}) {
   const param = {
@@ -25,24 +25,18 @@ export function createSuite(opts = {}) {
     ...opts,
   }
 
+  // -------------------------------
   // create the suite
+  // -------------------------------
   const suite = new SuiteDefinition({
     name: 'test suite 1',
     description: 'Desc 1',
   })
 
-  // create the testcases
-  const testcases = []
-  for (let i = 0; i < param.testcaseCount; i++) {
-    const tc = new TestcaseDefinition({
-      name: `TC ${i + 1}`,
-      description: `Description for testcase ${i + 1}`,
-    })
-    testcases.push(tc)
-  }
-  suite.testcases = testcases
-
-  // create the steps
+  // -------------------------------
+  // create the suite
+  // -------------------------------
+  const stepIds = []
   for (let i = 0; i < param.stepCount; i++) {
     let step
     if (param.singleSteps[i] !== undefined) {
@@ -59,12 +53,28 @@ export function createSuite(opts = {}) {
       })
     }
 
+    suite.steps[step.id] = step
+    stepIds.push(step.id)
+  }
+
+  // -------------------------------
+  // create the test cases
+  // -------------------------------
+  for (let i = 0; i < param.testcaseCount; i++) {
     // create default testcase data
-    for (let j = 0; j < param.testcaseCount; j++) {
-      step.data.push({ tc: i + 1, step: j + 1 })
+    const data = []
+    for (let j = 0; j < stepIds.length; j++) {
+      data.push({ tc: i + 1, step: j + 1 })
     }
 
-    suite.steps.push(step)
+    const tc = new TestcaseDefinition({
+      name: `TC ${i + 1}`,
+      description: `Description for testcase ${i + 1}`,
+    })
+    tc.steps = stepIds
+    tc.data = data
+
+    suite.testcases.push(tc)
   }
 
   return suite

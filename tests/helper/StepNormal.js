@@ -68,11 +68,11 @@ export default class StepNormal extends StepBase {
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
         const tcName = this.environmentTestcase.name
-        console.log(
-          `Execute Step '${
-            this.name
-          }' with method '${method}' in TC '${tcName}'`
-        )
+        // console.log(
+        //   `Execute Step '${
+        //     this.name
+        //   }' with method '${method}' in TC '${tcName}'`
+        // )
         resolve(1)
       }, time)
     })
