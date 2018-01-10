@@ -9,6 +9,9 @@ import { StepRegistry } from '@bitdiver/model'
 import StepNormal from './StepNormal'
 import StepSingle from './StepSingle'
 
+const DEFAULT_TC_COUNT = 3
+const DEFAULT_STEP_COUNT = 5
+
 /**
  * Creates a demo suite for testing.
  * The following params a properties in the options object
@@ -19,8 +22,8 @@ import StepSingle from './StepSingle'
  */
 export function createSuite(opts = {}) {
   const param = {
-    testcaseCount: 3,
-    stepCount: 5,
+    testcaseCount: DEFAULT_TC_COUNT,
+    stepCount: DEFAULT_STEP_COUNT,
     singleSteps: [undefined, 1],
     ...opts,
   }

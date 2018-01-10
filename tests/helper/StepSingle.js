@@ -31,8 +31,8 @@ export default class StepSingle extends StepNormal {
       }
     })
     return new Promise(resolve => {
-      const min = 10
-      const max = 500
+      const min = 5
+      const max = 100
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
         // console.log(

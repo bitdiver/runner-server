@@ -2,7 +2,21 @@ import { StepBase } from '@bitdiver/model'
 
 /**
  * Simulates a normal step. Dependend on the given step data the step
- * will cretae errors or will fail in one of the given methods
+ * will create errors or will fail in one of the given methods.
+ * const data = {
+ *   // The method name
+ *   start:{
+ *     // the action to perform
+ *     action: 'logInfo',
+ *     // the message to be logged
+ *     value: 'Some message to log'
+ *   },
+ *   run:{
+ *     // Throws an exception in the run method
+ *     action: 'exception'
+ *     value: 'Arrgh very bad exception'
+ *   }
+ * }
  */
 export default class StepNormal extends StepBase {
   /**
@@ -63,11 +77,11 @@ export default class StepNormal extends StepBase {
       }
     }
     return new Promise(resolve => {
-      const min = 10
-      const max = 500
+      const min = 5
+      const max = 100
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
-        const tcName = this.environmentTestcase.name
+        // const tcName = this.environmentTestcase.name
         // console.log(
         //   `Execute Step '${
         //     this.name
