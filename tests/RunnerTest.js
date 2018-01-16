@@ -1,9 +1,9 @@
 import { createSuite, createRegistry } from './helper/helper'
 import { Runner } from '../lib/index'
 // import { getLogAdapter } from '../lib/index'
-import { getLogAdapter } from './helper/LogAdapterMemory'
+import { getLogAdapterMemory } from '@bitdiver/model'
 
-const logAdapter = getLogAdapter()
+const logAdapter = getLogAdapterMemory()
 const TIMEOUT = 1000000
 const registry = createRegistry()
 
