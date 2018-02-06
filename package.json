@@ -56,6 +56,8 @@
     "semantic-release": "^8.2.3"
   },
   "dependencies": {
+    "@bitdiver/definition": "^1.0.0",
+    "@bitdiver/model": "^1.0.0",
     "jsonfile": "^4.0.0",
     "mkdirp": "^0.5.1"
   }
