@@ -61,7 +61,6 @@ class LogAdapterFile {
     const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
 
     const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
-    debugger
     if (meta.tc !== undefined && meta.tc.name !== undefined) {
       const tcCountAllLength = String(meta.tc.countAll).length
       const tcNumberStr = sprintf(

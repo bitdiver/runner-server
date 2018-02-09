@@ -350,7 +350,6 @@ async function runTestcaseAll(opts = {}) {
     logAdapter,
     parallelExecution: options.parallelExecution,
   })
-
   await runner.run(suiteDefiniton)
 
   // no check the log status
@@ -378,16 +377,16 @@ function checkTcStatus(extended = false) {
     // The last log of a test case must be the status log
     const statusLog = tcLog.logs[tcLog.logs.length - 1]
 
-    expect(statusLog.message).toEqual('Testcase status')
+    expect(statusLog.data.message).toEqual('Testcase status')
 
     if (extended) {
       res[tcName] = {
-        status: statusLog.status,
+        status: statusLog.data.status,
         logCount: tcLog.logs.length,
         stepCount: Object.keys(tcLog.steps).length,
       }
     } else {
-      res[tcName] = statusLog.status
+      res[tcName] = statusLog.data.status
     }
   })
 
