@@ -1,6 +1,7 @@
 'use strict'
 
 import assert from 'assert'
+import { sprintf } from 'sprintf-js'
 import uuid from 'uuid'
 const uuidV4 = uuid.v4
 
@@ -51,7 +52,7 @@ export default class Runner {
     // just store the test case instance ids in the order of the testcase
     this.environmentTestcaseIds = undefined
 
-    // The array with all the steps
+    // The object with all the steps by there stepId
     this.steps = undefined
 
     // The array with all the test case definitions
@@ -69,11 +70,17 @@ export default class Runner {
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
   async run(suite, opts) {
+    assert.ok(suite, 'The run method needs a suite to be executed')
+
     if (this.stepRegistry === undefined) {
       throw new Error(`The stepregistry is not defined`)
     } else if (this._validateSuite(suite)) {
       this._prepare(suite)
       this._createEnvironments(suite)
+
+      // eslint-disable-next-line no-console
+      console.log(`Execute the suite '${this.name}'`)
+
       if (suite.executionMode === EXECUTION_MODE_BATCH) {
         await this._doRunBatch(opts)
       } else {
@@ -85,6 +92,7 @@ export default class Runner {
   async _doRunNormal() {
     // TODO
     // The testcases will be executed one after another
+    throw new Error(`The method '_doRunNormal' is not yet implemented`)
   }
 
   /**
@@ -105,6 +113,16 @@ export default class Runner {
       }
     })
 
+    // This is set by the runner. The number of this step in the list of all the steps
+    this.currentStepCount = 0
+
+    // This is set by the runner. How many steps to be excuted in this run
+    this.allStepCount = 0
+
+    const stepCount = Object.keys(this.steps).length
+    const stringCountLength = String(stepCount).length
+    const stepCountString = sprintf(`%0${stringCountLength}d`, stepCount)
+
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
       const stepId = stepIds[i]
@@ -112,9 +130,19 @@ export default class Runner {
 
       const steps = []
       let step = this.stepRegistry.getStep(stepDefinition.class)
+      step.countCurrent = i + 1
+      this.countCurrent = stepCount
       step.testMode = testMode
       step.logger = this.logAdapter
       step.environmentRun = this.environmentRun
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `${sprintf(`%0${stringCountLength}d`, i + 1)}/${stepCountString} '${
+          step.name
+        }'`
+      )
+
       if (
         step.type === STEP_TYPE_SINGLE ||
         step.type === STEP_TYPE_SERVER_ONLY
@@ -365,14 +393,19 @@ export default class Runner {
     envRun.description = suite.description
     this.environmentRun = envRun
 
+    const tcCountAll = suite.testcases.length
+    let tcCountCurrent = 1
     // test case environments
     suite.testcases.forEach(tcDef => {
       const envTc = new EnvironmentTestcase()
       this.environmentTestcaseIds.push(envTc.id)
       this.environmentTestcaseMap.set(envTc.id, envTc)
+      this.CountAll = tcCountAll
+      this.countCurrent = tcCountCurrent
 
       envTc.name = tcDef.name
       envTc.description = tcDef.description
+      tcCountCurrent++
     })
   }
 

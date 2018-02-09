@@ -4,6 +4,7 @@ import assert from 'assert'
 import path from 'path'
 import mkdirp from 'mkdirp'
 import jsonfile from 'jsonfile'
+import { sprintf } from 'sprintf-js'
 
 export const LEVEL_DEBUG = 'debug'
 export const LEVEL_INFO = 'info'
@@ -31,10 +32,14 @@ class LogAdapterFile {
    *           id: 'id'
    *         },
    *         tc:{
+   *           tcCountCurrent: tcCountCurrent,
+   *           tcCountAll: tcCountAll,
    *           id: 'id',
    *           name: 'great tc name'
    *         },
    *         step:{
+   *           stepCountCurrent: stepCountCurrent,
+   *           stepCountAll: stepCountAll,
    *           id: 'id',
    *           name: 'great step name'
    *           typ: ('singel'| ''|)
@@ -51,14 +56,27 @@ class LogAdapterFile {
 
     const meta = logMessage.meta
     const data = logMessage.data
+    const logLevel = logMessage.logLevel
     // const logLevel = logMessage.logLevel
     const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
 
     const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
-    if (meta.tc !== undefined && meta.tc.id !== undefined) {
-      targetPath.push(`TC_${meta.tc.id}`)
-      if (meta.step !== undefined && meta.step.id !== undefined) {
-        targetPath.push(`Step_${meta.step.id}`)
+    debugger
+    if (meta.tc !== undefined && meta.tc.name !== undefined) {
+      const tcCountAllLength = String(meta.tc.countAll).length
+      const tcNumberStr = sprintf(
+        `%0${tcCountAllLength}d`,
+        meta.tc.countCurrent
+      )
+
+      targetPath.push(`TC_${tcNumberStr}_${meta.tc.name}`)
+      if (meta.step !== undefined && meta.step.name !== undefined) {
+        const stringCountLength = String(meta.step.countCurrent).length
+        const stepNumber = sprintf(
+          `%0${stringCountLength}d`,
+          meta.step.countCurrent
+        )
+        targetPath.push(`Step_${stepNumber}_${meta.step.name}`)
       }
     }
 
@@ -80,7 +98,7 @@ class LogAdapterFile {
       return new Promise((resolve, reject) => {
         jsonfile.writeFile(
           file,
-          { meta: { time }, data },
+          { meta: { time }, data, logLevel },
           { spaces: 2 },
           err => {
             if (err) {
