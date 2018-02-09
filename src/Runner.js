@@ -131,7 +131,7 @@ export default class Runner {
       const steps = []
       let step = this.stepRegistry.getStep(stepDefinition.class)
       step.countCurrent = i + 1
-      this.countCurrent = stepCount
+      step.countAll = stepCount
       step.testMode = testMode
       step.logger = this.logAdapter
       step.environmentRun = this.environmentRun
@@ -147,6 +147,7 @@ export default class Runner {
         step.type === STEP_TYPE_SINGLE ||
         step.type === STEP_TYPE_SERVER_ONLY
       ) {
+        // Single Step
         step.data = []
         step.environmentTestcase = []
         for (
@@ -169,6 +170,7 @@ export default class Runner {
         step.description = stepDefinition.description
         steps.push(step)
       } else {
+        // Normal step
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
@@ -193,6 +195,8 @@ export default class Runner {
             step.environmentTestcase = tcEnv
             // only execute steps for testcases which not have failed
             if (tcEnv.status === STATUS_OK && tcEnv.running) {
+              step.countCurrent = i + 1
+              step.countAll = stepCount
               step.name = stepDefinition.name
               step.description = stepDefinition.description
               step.data = data
@@ -400,8 +404,8 @@ export default class Runner {
       const envTc = new EnvironmentTestcase()
       this.environmentTestcaseIds.push(envTc.id)
       this.environmentTestcaseMap.set(envTc.id, envTc)
-      this.CountAll = tcCountAll
-      this.countCurrent = tcCountCurrent
+      envTc.countAll = tcCountAll
+      envTc.countCurrent = tcCountCurrent
 
       envTc.name = tcDef.name
       envTc.description = tcDef.description
@@ -455,6 +459,8 @@ export default class Runner {
           id: this.environmentRun.id,
         },
         tc: {
+          countAll: environmentTestcase.countAll,
+          countCurrent: environmentTestcase.countCurrent,
           id: environmentTestcase.id,
           name: environmentTestcase.name,
         },
@@ -488,6 +494,8 @@ export default class Runner {
         id: this.environmentRun.id,
       },
       tc: {
+        countAll: environmentTestcase.countAll,
+        countCurrent: environmentTestcase.countCurrent,
         id: environmentTestcase.id,
         name: environmentTestcase.name,
       },
