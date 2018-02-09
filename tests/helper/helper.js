@@ -37,7 +37,7 @@ export function createSuite(opts = {}) {
   })
 
   // -------------------------------
-  // create the suite
+  // create the steps
   // -------------------------------
   const stepIds = []
   for (let i = 0; i < param.stepCount; i++) {

@@ -69,8 +69,6 @@ export default class Runner {
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
   async run(suite, opts) {
-    this.logAdapter.reset()
-
     if (this.stepRegistry === undefined) {
       throw new Error(`The stepregistry is not defined`)
     } else if (this._validateSuite(suite)) {
