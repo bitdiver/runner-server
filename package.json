@@ -17,6 +17,8 @@
     "src_format": "prettier --no-semi --single-quote --trailing-comma es5 --write \"{src,tests}/**/*.js\"",
     "test_only": "jest",
     "test": "npm run src_format && npm run src_lint && npm run build && jest -c jest.config.json",
+    "test-manual": "npm run src_format && npm run src_lint && npm run build && babel-node tests/ProgressBarConsoleManual.js",
+    "debug-manual": "npm run src_format && npm run src_lint && npm run build && babel-node  --inspect-brk tests/ProgressBarConsoleManual.js",
     "semantic-release": "semantic-release pre && npm publish --access public && semantic-release post",
     "debug": "npm run build && node --inspect-brk ./node_modules/.bin/jest -i --config=./jest.config.json",
     "prepublish": "npm run build"
@@ -58,6 +60,7 @@
   "dependencies": {
     "@bitdiver/definition": "^1.0.0",
     "@bitdiver/model": "^1.0.2",
+    "ascii-progress": "^1.0.5",
     "jsonfile": "^4.0.0",
     "mkdirp": "^0.5.1",
     "sprintf-js": "^1.1.1"

@@ -1,11 +1,11 @@
 'use strict'
 
 import assert from 'assert'
-import { sprintf } from 'sprintf-js'
 import uuid from 'uuid'
 const uuidV4 = uuid.v4
 
 import { getLogAdapter, LEVEL_INFO, LEVEL_ERROR } from './LogAdapterFile'
+import ProgressMeter from './ProgressMeter'
 
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
 
@@ -29,6 +29,10 @@ export default class Runner {
   constructor(opts = {}) {
     // The run id
     this.id = undefined
+
+    this.progressMeter = opts.progressMeter
+      ? opts.progressMeter
+      : new ProgressMeter({ name: opts.name })
 
     this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapter()
 
@@ -77,9 +81,11 @@ export default class Runner {
     } else if (this._validateSuite(suite)) {
       this._prepare(suite)
       this._createEnvironments(suite)
-
-      // eslint-disable-next-line no-console
-      console.log(`Execute the suite '${this.name}'`)
+      debugger
+      const stepCount = Object.keys(this.steps).length
+      const testcaseCount = this.testcases.length
+      this.progressMeter.init({ testcaseCount, stepCount, name: suite.name })
+      this.progressMeter.clear()
 
       if (suite.executionMode === EXECUTION_MODE_BATCH) {
         await this._doRunBatch(opts)
@@ -113,18 +119,12 @@ export default class Runner {
       }
     })
 
-    // This is set by the runner. The number of this step in the list of all the steps
-    this.currentStepCount = 0
-
-    // This is set by the runner. How many steps to be excuted in this run
-    this.allStepCount = 0
-
     const stepCount = Object.keys(this.steps).length
-    const stringCountLength = String(stepCount).length
-    const stepCountString = sprintf(`%0${stringCountLength}d`, stepCount)
 
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
+      this.progressMeter.startOverTestcase()
+
       const stepId = stepIds[i]
       const stepDefinition = this.steps[stepId]
 
@@ -136,12 +136,7 @@ export default class Runner {
       step.logger = this.logAdapter
       step.environmentRun = this.environmentRun
 
-      // eslint-disable-next-line no-console
-      console.log(
-        `${sprintf(`%0${stringCountLength}d`, i + 1)}/${stepCountString} '${
-          step.name
-        }'`
-      )
+      this.progressMeter.incStep(step.name)
 
       if (
         step.type === STEP_TYPE_SINGLE ||
@@ -158,6 +153,8 @@ export default class Runner {
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+          this.progressMeter.incTestcase(tcEnv.name)
+
           if (tcEnv.running) {
             const data = tc.data[i]
             step.data.push(data)
@@ -179,6 +176,8 @@ export default class Runner {
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+
+          this.progressMeter.incTestcase(tcEnv.name)
 
           const data = tc.data[i]
           if (data !== undefined || step.needData === false) {
@@ -450,6 +449,7 @@ export default class Runner {
       environmentTestcase.status < STATUS_ERROR &&
       environmentTestcase.running
     ) {
+      this.progressMeter.setFail()
       environmentTestcase.status = STATUS_ERROR
       environmentTestcase.running = false
       const data = typeof err === 'string' ? { message: err } : err
