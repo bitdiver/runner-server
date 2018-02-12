@@ -37,14 +37,6 @@ test(
     })
     await runner.run(suiteDefiniton)
 
-    // no check the log status
-    // const res = checkTcStatus(options.extendedRes)
-
-    // expect(res).toEqual({
-    //   'TC 1': 1,
-    //   'TC 2': 1,
-    //   'TC 3': 1,
-    // })
     done()
   },
   TIMEOUT
@@ -204,7 +196,6 @@ test(
     })
 
     // await logAdapter.writeFile('log/runlog.json')
-
     expect(res).toEqual({
       'TC 1': {
         logCount: 1,
@@ -212,7 +203,7 @@ test(
         stepCount: 1,
       },
       'TC 2': {
-        logCount: 1,
+        logCount: 2,
         status: 5,
         stepCount: 1,
       },
@@ -246,7 +237,7 @@ test(
         stepCount: 1,
       },
       'TC 2': {
-        logCount: 1,
+        logCount: 2,
         status: 5,
         stepCount: 1,
       },
@@ -277,17 +268,17 @@ test(
 
     expect(res).toEqual({
       'TC 1': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },
       'TC 2': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },
       'TC 3': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },
@@ -311,17 +302,17 @@ test(
 
     expect(res).toEqual({
       'TC 1': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },
       'TC 2': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },
       'TC 3': {
-        logCount: 1,
+        logCount: 2,
         status: 4,
         stepCount: 2,
       },

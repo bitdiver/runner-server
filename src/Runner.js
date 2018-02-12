@@ -4,7 +4,7 @@ import assert from 'assert'
 import uuid from 'uuid'
 const uuidV4 = uuid.v4
 
-import { getLogAdapter, LEVEL_INFO, LEVEL_ERROR } from './LogAdapterFile'
+import { getLogAdapter } from './LogAdapterFile'
 import ProgressMeter from './ProgressMeter'
 
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
@@ -20,7 +20,14 @@ import {
   EnvironmentTestcase,
   STATUS_OK,
   STATUS_UNKNOWN,
+  STATUS_WARNING,
   STATUS_ERROR,
+  STATUS_FATAL,
+  LEVEL_INFO,
+  LEVEL_WARNING,
+  LEVEL_ERROR,
+  LEVEL_FATAL,
+  generateLogs,
 } from '@bitdiver/model'
 
 /**
@@ -128,11 +135,9 @@ export default class Runner {
 
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
-      this._checkStatusRunEnvironment()
-
-      if (this.environmentRun.status >= STATUS_ERROR) {
+      if (this._shoulStopRun()) {
         // OK we can stop the run here
-        return this._logEndRun()
+        break
       }
 
       this.progressMeter.startOverTestcase()
@@ -145,7 +150,7 @@ export default class Runner {
       step.countCurrent = i + 1
       step.countAll = stepCount
       step.testMode = testMode
-      step.logger = this.logAdapter
+      step.logAdapter = this
       step.environmentRun = this.environmentRun
 
       this.progressMeter.incStep(step.name)
@@ -205,7 +210,7 @@ export default class Runner {
             )
             step.environmentTestcase = tcEnv
             // only execute steps for testcases which not have failed
-            if (tcEnv.status === STATUS_OK && tcEnv.running) {
+            if (tcEnv.status < STATUS_ERROR && tcEnv.running) {
               step.countCurrent = i + 1
               step.countAll = stepCount
               step.name = stepDefinition.name
@@ -217,68 +222,35 @@ export default class Runner {
             // create a new step instance for the next testcase
             step = this.stepRegistry.getStep(stepDefinition.class)
             step.testMode = testMode
-            step.logger = this.logAdapter
+            step.logAdapter = this
             step.environmentRun = this.environmentRun
           }
         }
       }
       await this._executeSteps(steps)
-
-      // -----------------------
-      // if this was the last step for this test case, the test case could be finished
-      // -----------------------
-      let runCount = 0 // How many test cases have the status running
-      const logPromisses = []
-      for (let tcCount = 0; tcCount < this.testcases.length; tcCount++) {
-        const tc = this.testcases[tcCount]
-        const tcId = this.environmentTestcaseIds[tcCount]
-        const environmentTestcase = this.environmentTestcaseMap.get(tcId)
-        if (environmentTestcase.running && tc.steps.length - 1 === i) {
-          environmentTestcase.running = false
-          // console.log(`Finished the testcase ${tcCount} in step ${i}`)
-          logPromisses.push(this._logTestcaseStatus(environmentTestcase))
-        }
-
-        if (environmentTestcase.running) {
-          runCount++
-        }
-      }
-      await Promise.all(logPromisses)
-
-      if (this.environmentRun.status > STATUS_ERROR) {
-        // Stop the test run on FATAL
-
-        // close all the testcases und stop them
-        for (const tcEnv of this.environmentTestcaseMap.values()) {
-          if (tcEnv.running) {
-            tcEnv.status = STATUS_UNKNOWN
-            this._logTestcaseStatus(tcEnv)
-            tcEnv.running = false
-          }
-        }
-        break
-      }
-
-      if (runCount === 0) {
-        // we can stop the suite
-        break
-      }
     }
+
+    await this._closeTestcases()
 
     await this._logEndRun()
   }
 
   /**
-   * This method checks if there is at least one testcase in status running.
-   * if not the environmentRun will be set to Error
+   * ends all the testcases and writes the status to the logger
    */
-  _checkStatusRunEnvironment() {
-    for (const envTc of this.environmentTestcaseMap.values()) {
-      if (envTc.status < STATUS_ERROR) {
-        return
+  async _closeTestcases() {
+    // -----------------------
+    // if this was the last step for this test case, the test case could be finished
+    // -----------------------
+    const logPromisses = []
+    for (const environmentTestcase of this.environmentTestcaseMap.values()) {
+      if (this.environmentRun.status > STATUS_ERROR) {
+        environmentTestcase.status = STATUS_UNKNOWN
       }
+      environmentTestcase.running = false
+      logPromisses.push(this._logTestcaseStatus(environmentTestcase))
     }
-    this.environmentRun.status = STATUS_ERROR
+    return Promise.all(logPromisses)
   }
 
   /**
@@ -317,7 +289,10 @@ export default class Runner {
         const stepInstance = stepInstances[stepsDone]
         stepsDone++
         // Only execute the step if not failed
-        if (stepInstance.environmentTestcase.status < STATUS_ERROR) {
+        if (
+          stepInstance.type !== STEP_TYPE_NORMAL ||
+          stepInstance.environmentTestcase.status < STATUS_ERROR
+        ) {
           runningSteps++
 
           // This array stores all the asyc function which needs to be executed in the right order
@@ -442,116 +417,20 @@ export default class Runner {
 
   /**
    * Logs the start of a run
-   * @param stepInstance {object} The step object
-   * @param err {object} The error caused by the step
-   * @return promise {promise} A promise indicating when the log was written
-   */
-  setStepFail(stepInstance, err) {
-    stepInstance.status = STATUS_ERROR
-    this.environmentRun.status = STATUS_ERROR
-
-    const promises = []
-
-    // Set testcase fail
-    if (stepInstance.type === STEP_TYPE_NORMAL) {
-      promises.push(this.setTestcaseFail(stepInstance.environmentTestcase, err))
-    } else {
-      this.environmentTestcaseIds.forEach(id => {
-        const env = this.environmentTestcaseMap.get(id)
-        promises.push(this.setTestcaseFail(env, err))
-      })
-    }
-
-    // set run fail
-    if (this.environmentRun.status < STATUS_ERROR) {
-      promises.push(this.setRunFail(err))
-    }
-
-    promises.push(stepInstance.logError(err))
-    return Promise.all(promises)
-  }
-
-  setTestcaseFail(environmentTestcase, err) {
-    const promisses = []
-    if (
-      environmentTestcase.status < STATUS_ERROR &&
-      environmentTestcase.running
-    ) {
-      this.progressMeter.setFail()
-      environmentTestcase.status = STATUS_ERROR
-      environmentTestcase.running = false
-      const data = typeof err === 'string' ? { message: err } : err
-      const meta = {
-        run: {
-          start: this.environmentRun.startTime,
-          id: this.environmentRun.id,
-        },
-        tc: {
-          countAll: environmentTestcase.countAll,
-          countCurrent: environmentTestcase.countCurrent,
-          id: environmentTestcase.id,
-          name: environmentTestcase.name,
-        },
-      }
-      promisses.push(this.logAdapter.log({ meta, data, logLevel: LEVEL_ERROR }))
-      promisses.push(this._logTestcaseStatus(environmentTestcase))
-    }
-
-    return Promise.all(promisses)
-  }
-
-  setRunFail(err) {
-    const data = typeof err === 'string' ? { message: err } : err
-    const meta = {
-      run: {
-        start: this.environmentRun.startTime,
-        id: this.environmentRun.id,
-      },
-    }
-    return this.logAdapter.log({ meta, data, logLevel: LEVEL_ERROR })
-  }
-
-  /**
-   * Writes a test case status message for the given test case
-   * @param environmentTestcase {object} The test case environment
-   */
-  _logTestcaseStatus(environmentTestcase) {
-    const meta = {
-      run: {
-        start: this.environmentRun.startTime,
-        id: this.environmentRun.id,
-      },
-      tc: {
-        countAll: environmentTestcase.countAll,
-        countCurrent: environmentTestcase.countCurrent,
-        id: environmentTestcase.id,
-        name: environmentTestcase.name,
-      },
-    }
-    const data = {
-      message: 'Testcase status',
-      status: environmentTestcase.status,
-    }
-    return this.logAdapter.log({ meta, data, logLevel: LEVEL_INFO })
-  }
-
-  /**
-   * Logs the start of a run
    * @return promise {promise} A promise indicating when the log was written
    */
   _logStartRun() {
-    const meta = {
-      run: {
-        start: this.environmentRun.startTime,
-        id: this.environmentRun.id,
-      },
-    }
     const data = {
       message: 'Start Run',
       suite: this.name,
     }
-
-    return this.logAdapter.log({ meta, data, logLevel: LEVEL_INFO })
+    return generateLogs(
+      this.environmentRun,
+      undefined,
+      this.logAdapter,
+      data,
+      LEVEL_INFO
+    )
   }
 
   /**
@@ -559,17 +438,157 @@ export default class Runner {
    * @return promise {promise} A promise indicating when the log was written
    */
   _logEndRun() {
-    const meta = {
-      run: {
-        start: this.environmentRun.startTime,
-        id: this.environmentRun.id,
-      },
-    }
     const data = {
       message: 'Stop Run',
       suite: this.name,
       status: this.environmentRun.status,
     }
-    return this.logAdapter.log({ meta, data, logLevel: LEVEL_INFO })
+    return generateLogs(
+      this.environmentRun,
+      undefined,
+      this.logAdapter,
+      data,
+      LEVEL_INFO
+    )
+  }
+
+  /**
+   * Converts the logLevel into a Status
+   * @param logLevel {string} The loglevel to be converted
+   * @return status {number} The status
+   */
+  _getStatusForLoglevel(logeLevel) {
+    if (logeLevel === LEVEL_WARNING) {
+      return STATUS_WARNING
+    } else if (logeLevel === LEVEL_ERROR) {
+      return STATUS_ERROR
+    } else if (logeLevel === LEVEL_FATAL) {
+      return STATUS_FATAL
+    }
+    return STATUS_OK
+  }
+
+  /**
+   * Logs an error of a step where the step throws an error.
+   * Delegates the logging back to the step
+   * @param stepInstance {object} The step object
+   * @param err {object} The error caused by the step
+   * @return promise {promise} A promise indicating when the log was written
+   */
+  setStepFail(stepInstance, err) {
+    // Delegate the logging to the step
+    return stepInstance._log(err, LEVEL_ERROR)
+  }
+
+  /**
+   * The interface of the LogAdapter
+   * The runner is the logger for a step. So the Runner could intercept
+   * and set the status as needed.
+   * In this case the method is called from the step. So all data is in the right
+   * format.
+   */
+  log(logMessage) {
+    const logLevel = logMessage.logLevel
+    const promises = []
+    const status = this._getStatusForLoglevel(logLevel)
+
+    const envTc = this.environmentTestcaseMap.get(logMessage.meta.tc.id)
+    if (status >= STATUS_ERROR) {
+      // there is an error. The status must be set
+      promises.push(this.setTestcaseFail(envTc, logMessage.data, status))
+      promises.push(this.setRunFail(logMessage.data, status))
+    } else {
+      envTc.status = status
+    }
+
+    // Now call the logger
+    promises.push(this.logAdapter.log(logMessage))
+
+    return Promise.all(promises)
+  }
+
+  /**
+   * Set the environmentTestcase.running to false and logs
+   * testcase log
+   * @param environmentTestcase {object} The testcase environment
+   * @param err {object} The data to be logged
+   * @return promises
+   */
+  async setTestcaseFail(environmentTestcase, err, status = STATUS_ERROR) {
+    const promisses = []
+    if (
+      environmentTestcase.status < STATUS_ERROR &&
+      environmentTestcase.running
+    ) {
+      environmentTestcase.status = status
+      this.progressMeter.setFail()
+      environmentTestcase.running = false
+
+      promisses.push(
+        generateLogs(
+          this.environmentRun,
+          environmentTestcase,
+          this.logAdapter,
+          err,
+          LEVEL_ERROR
+        )
+      )
+
+      // promisses.push(this._logTestcaseStatus(environmentTestcase))
+    }
+
+    return Promise.all(promisses)
+  }
+
+  /**
+   * Set the environmentRun.running to false and logs
+   * testcase log
+   * @param environmentTestcase {object} The testcase environment
+   * @param err {object} The data to be logged
+   * @return promises
+   */
+
+  async setRunFail(err, status = STATUS_ERROR) {
+    this.environmentRun.status = status
+
+    return generateLogs(
+      this.environmentRun,
+      undefined,
+      this.logAdapter,
+      err,
+      LEVEL_ERROR
+    )
+  }
+
+  /**
+   * Writes a test case status message for the given test case
+   * @param environmentTestcase {object} The test case environment
+   */
+  _logTestcaseStatus(environmentTestcase) {
+    return generateLogs(
+      this.environmentRun,
+      environmentTestcase,
+      this.logAdapter,
+      { message: 'Testcase status', status: environmentTestcase.status },
+      LEVEL_INFO
+    )
+  }
+
+  /**
+   * This method checks if there are still test cases in Status < 'Error'
+   * If no return true
+   * @return shouldStop {boolean} true, if the suite should be stopped
+   */
+  _shoulStopRun() {
+    if (this.environmentRun.status === STATUS_FATAL) {
+      return true
+    }
+
+    for (const envTc of this.environmentTestcaseMap.values()) {
+      if (envTc.running) {
+        return false
+      }
+    }
+    return true
   }
 }

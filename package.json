@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "@bitdiver/definition": "^1.0.0",
-    "@bitdiver/model": "^1.0.6",
+    "@bitdiver/model": "^1.1.0",
     "ascii-progress": "^1.0.5",
     "jsonfile": "^4.0.0",
     "mkdirp": "^0.5.1",
