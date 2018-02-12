@@ -56,7 +56,7 @@ export default class ProgressBarConsole extends ProgressMeter {
    * increases the number of failed test cases
    */
   setFail() {
-    super.fail()
+    super.setFail()
     this.barFailed.tick()
   }
 
