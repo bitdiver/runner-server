@@ -1,6 +1,7 @@
 'use strict'
 
 import assert from 'assert'
+import moment from 'moment'
 import path from 'path'
 import mkdirp from 'mkdirp'
 import jsonfile from 'jsonfile'
@@ -52,7 +53,7 @@ class LogAdapterFile {
    */
   log(logMessage) {
     assert.ok(logMessage.meta, 'The log message does not have a meta object')
-    assert.ok(logMessage.data, 'The log message does not have a meta object')
+    assert.ok(logMessage.data, 'The log message does not have a data object')
 
     const meta = logMessage.meta
     const data = logMessage.data
@@ -89,7 +90,8 @@ class LogAdapterFile {
         resolve()
       })
     }).then(() => {
-      const fileName = Date.now() + '.json'
+      const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
+      const fileName = `${timeStamp}_${logLevel}.json`
       targetPath.push(fileName)
 
       const file = path.join(...targetPath)

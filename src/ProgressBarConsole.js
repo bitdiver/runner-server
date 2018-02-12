@@ -35,11 +35,11 @@ export default class ProgressBarConsole extends ProgressMeter {
     })
 
     // print the header
-    console.log(`------------------------------------------------`)
-    console.log(`| Execute suite:           ${this.name}`)
-    console.log(`| Total step count:        ${this.stepCount}`)
-    console.log(`| Total test case count:   ${this.testcaseCount}`)
-    console.log(`------------------------------------------------`)
+    console.log(`------------------------------------------------`) // eslint-disable-line no-console
+    console.log(`| Execute suite:           ${this.name}`) // eslint-disable-line no-console
+    console.log(`| Total step count:        ${this.stepCount}`) // eslint-disable-line no-console
+    console.log(`| Total test case count:   ${this.testcaseCount}`) // eslint-disable-line no-console
+    console.log(`------------------------------------------------`) // eslint-disable-line no-console
 
     // make the bars Visible in the right order
     this.barTestcase.tick()

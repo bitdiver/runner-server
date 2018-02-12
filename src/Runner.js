@@ -13,6 +13,7 @@ import {
   STEP_TYPE_NORMAL,
   STEP_TYPE_SINGLE,
   STEP_TYPE_SERVER_ONLY,
+  DIR_BASE_DATA,
 } from '@bitdiver/model'
 import {
   EnvironmentRun,
@@ -29,6 +30,10 @@ export default class Runner {
   constructor(opts = {}) {
     // The run id
     this.id = undefined
+
+    // The base directory for all the data files of the steps
+    // It will be injected into the run environment
+    this.dataDir = opts.dataDir ? opts.dataDir : ''
 
     this.progressMeter = opts.progressMeter
       ? opts.progressMeter
@@ -81,7 +86,7 @@ export default class Runner {
     } else if (this._validateSuite(suite)) {
       this._prepare(suite)
       this._createEnvironments(suite)
-      debugger
+
       const stepCount = Object.keys(this.steps).length
       const testcaseCount = this.testcases.length
       this.progressMeter.init({ testcaseCount, stepCount, name: suite.name })
@@ -123,6 +128,13 @@ export default class Runner {
 
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
+      this._checkStatusRunEnvironment()
+
+      if (this.environmentRun.status >= STATUS_ERROR) {
+        // OK we can stop the run here
+        return this._logEndRun()
+      }
+
       this.progressMeter.startOverTestcase()
 
       const stepId = stepIds[i]
@@ -244,7 +256,6 @@ export default class Runner {
             tcEnv.running = false
           }
         }
-
         break
       }
 
@@ -255,6 +266,19 @@ export default class Runner {
     }
 
     await this._logEndRun()
+  }
+
+  /**
+   * This method checks if there is at least one testcase in status running.
+   * if not the environmentRun will be set to Error
+   */
+  _checkStatusRunEnvironment() {
+    for (const envTc of this.environmentTestcaseMap.values()) {
+      if (envTc.status < STATUS_ERROR) {
+        return
+      }
+    }
+    this.environmentRun.status = STATUS_ERROR
   }
 
   /**
@@ -292,33 +316,36 @@ export default class Runner {
       ) {
         const stepInstance = stepInstances[stepsDone]
         stepsDone++
-        runningSteps++
+        // Only execute the step if not failed
+        if (stepInstance.environmentTestcase.status < STATUS_ERROR) {
+          runningSteps++
 
-        // This array stores all the asyc function which needs to be executed in the right order
-        const asyncArray = []
+          // This array stores all the asyc function which needs to be executed in the right order
+          const asyncArray = []
 
-        methods.forEach(method => {
-          asyncArray.push(() => {
-            return stepInstance.logInfo(`Step ${method}`)
-            // return this._logStep(stepInstance, `Step ${method}`)
+          methods.forEach(method => {
+            asyncArray.push(() => {
+              return stepInstance.logInfo(`Step ${method}`)
+              // return this._logStep(stepInstance, `Step ${method}`)
+            })
+            asyncArray.push(() => {
+              return stepInstance[method]()
+                .then(() => {
+                  runningSteps--
+                })
+                .catch(err => {
+                  runningSteps--
+                  return this.setStepFail(stepInstance, err)
+                })
+            })
           })
-          asyncArray.push(() => {
-            return stepInstance[method]()
-              .then(() => {
-                runningSteps--
-              })
-              .catch(err => {
-                runningSteps--
-                return this.setStepFail(stepInstance, err)
-              })
-          })
-        })
 
-        promises.push(
-          asyncArray.reduce((prev, curr) => {
-            return prev.then(curr)
-          }, Promise.resolve(1))
-        )
+          promises.push(
+            asyncArray.reduce((prev, curr) => {
+              return prev.then(curr)
+            }, Promise.resolve(1))
+          )
+        }
       }
 
       // wait 50 ms
@@ -394,6 +421,7 @@ export default class Runner {
     const envRun = new EnvironmentRun()
     envRun.name = suite.name
     envRun.description = suite.description
+    envRun.map.set(DIR_BASE_DATA, this.dataDir)
     this.environmentRun = envRun
 
     const tcCountAll = suite.testcases.length

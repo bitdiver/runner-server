@@ -34,8 +34,8 @@ const runner = new Runner({
 runner
   .run(suiteDefiniton)
   .then(() => {
-    console.log('\n\nFINISHED')
+    console.log('\n\nFINISHED') // eslint-disable-line no-console
   })
   .catch(err => {
-    console.log('ERROR: ', err)
+    console.log('ERROR: ', err) // eslint-disable-line no-console
   })
