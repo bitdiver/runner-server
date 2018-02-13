@@ -153,7 +153,7 @@ export default class Runner {
       step.logAdapter = this
       step.environmentRun = this.environmentRun
 
-      this.progressMeter.incStep(step.name)
+      this.progressMeter.incStep(stepDefinition.name)
 
       if (
         step.type === STEP_TYPE_SINGLE ||
@@ -475,7 +475,10 @@ export default class Runner {
    * @param err {object} The error caused by the step
    * @return promise {promise} A promise indicating when the log was written
    */
-  setStepFail(stepInstance, err) {
+  setStepFail(
+    stepInstance,
+    err = 'Unknown Message: Empty error from step execution'
+  ) {
     // Delegate the logging to the step
     return stepInstance._log(err, LEVEL_ERROR)
   }
