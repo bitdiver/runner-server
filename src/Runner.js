@@ -3,6 +3,7 @@
 import assert from 'assert'
 import uuid from 'uuid'
 const uuidV4 = uuid.v4
+import pAll from 'p-all'
 
 import { getLogAdapter } from './LogAdapterFile'
 import ProgressMeter from './ProgressMeter'
@@ -10,7 +11,6 @@ import ProgressMeter from './ProgressMeter'
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
 
 import {
-  STEP_TYPE_NORMAL,
   STEP_TYPE_SINGLE,
   STEP_TYPE_SERVER_ONLY,
   DIR_BASE_DATA,
@@ -49,7 +49,7 @@ export default class Runner {
     this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapter()
 
     // Defines how many steps could be executed in paralell
-    this.maxParallelSteps = opts.maxParallelSteps ? opts.maxParallelSteps : 5
+    this.maxParallelSteps = opts.maxParallelSteps ? opts.maxParallelSteps : 100
 
     this.stepRegistry = opts.stepRegistry
 
@@ -277,60 +277,37 @@ export default class Runner {
    * @return promise {promise} A promise when all the step instances are executed
    */
   async _executeStepMethodParallel(stepInstances, methods) {
-    const promises = []
-    let runningSteps = 0
-    let stepsDone = 0
-    while (stepsDone < stepInstances.length) {
-      for (
-        let i = stepsDone;
-        i < stepInstances.length && runningSteps <= this.maxParallelSteps;
-        i++
-      ) {
-        const stepInstance = stepInstances[stepsDone]
-        stepsDone++
-        // Only execute the step if not failed
-        if (
-          stepInstance.type !== STEP_TYPE_NORMAL ||
-          stepInstance.environmentTestcase.status < STATUS_ERROR
-        ) {
-          runningSteps++
-
-          // This array stores all the asyc function which needs to be executed in the right order
-          const asyncArray = []
-
-          methods.forEach(method => {
-            asyncArray.push(() => {
-              return stepInstance.logInfo(`Step ${method}`)
-              // return this._logStep(stepInstance, `Step ${method}`)
-            })
-            asyncArray.push(() => {
-              return stepInstance[method]()
-                .then(() => {
-                  runningSteps--
-                })
-                .catch(err => {
-                  runningSteps--
-                  return this.setStepFail(stepInstance, err)
-                })
-            })
-          })
-
-          promises.push(
-            asyncArray.reduce((prev, curr) => {
-              return prev.then(curr)
-            }, Promise.resolve(1))
-          )
-        }
-      }
-
-      // wait 50 ms
-      await new Promise(resolve => {
-        setTimeout(() => {
-          resolve(1)
-        }, 50)
-      })
+    const promiseFunctions = []
+    for (const stepInstance of stepInstances) {
+      promiseFunctions.push(() => this._getMethodPromise(stepInstance, methods))
     }
-    return Promise.all(promises)
+    debugger
+    return pAll(promiseFunctions, { concurrency: this.maxParallelSteps })
+  }
+
+  /**
+   * Submethod of _executeStepMethodParallel
+   * This method build a promise which executes the given methods in
+   * the given order
+   */
+  _getMethodPromise(stepInstance, methods) {
+    const asyncArray = []
+
+    methods.forEach(method => {
+      asyncArray.push(() => {
+        return stepInstance.logInfo(`Step ${method}`)
+        // return this._logStep(stepInstance, `Step ${method}`)
+      })
+      asyncArray.push(() => {
+        return stepInstance[method]().catch(err => {
+          return this.setStepFail(stepInstance, err)
+        })
+      })
+    })
+
+    return asyncArray.reduce((prev, curr) => {
+      return prev.then(curr)
+    }, Promise.resolve(1))
   }
 
   /**
