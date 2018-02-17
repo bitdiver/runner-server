@@ -20,7 +20,7 @@
     "test-manual": "npm run src_format && npm run src_lint && npm run build && babel-node tests/ProgressBarConsoleManual.js",
     "debug-manual": "npm run src_format && npm run src_lint && npm run build && babel-node  --inspect-brk tests/ProgressBarConsoleManual.js",
     "debug": "npm run build && node --inspect-brk ./node_modules/.bin/jest -i --config=./jest.config.json",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "contributors": [
     {
@@ -58,14 +58,12 @@
   },
   "dependencies": {
     "@bitdiver/definition": "^1.0.0",
-    "@bitdiver/model": "^1.1.2",
+    "@bitdiver/model": "^1.2.0",
     "ascii-progress": "^1.0.5",
     "jsonfile": "^4.0.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.20.1",
     "p-all": "^1.0.0",
-    "p-any": "^1.1.0",
-    "p-queue": "^2.3.0",
     "sprintf-js": "^1.1.1"
   }
 }
