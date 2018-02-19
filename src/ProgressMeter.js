@@ -76,6 +76,7 @@ export default class ProgressMeter {
    */
   startOverTestcase() {
     this.currentTestcase = 0
+    this.currentTestcaseName = ''
     this.update()
   }
 

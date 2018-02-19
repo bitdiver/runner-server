@@ -284,7 +284,6 @@ export default class Runner {
     for (const stepInstance of stepInstances) {
       promiseFunctions.push(() => this._getMethodPromise(stepInstance, methods))
     }
-    debugger
     return pAll(promiseFunctions, { concurrency: this.maxParallelSteps })
   }
 
