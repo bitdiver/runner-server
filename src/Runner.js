@@ -49,7 +49,7 @@ export default class Runner {
     this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapter()
 
     // Defines how many steps could be executed in paralell
-    this.maxParallelSteps = opts.maxParallelSteps ? opts.maxParallelSteps : 100
+    this.maxParallelSteps = opts.maxParallelSteps ? opts.maxParallelSteps : 20
 
     this.stepRegistry = opts.stepRegistry
 
@@ -197,7 +197,10 @@ export default class Runner {
           this.progressMeter.incTestcase(tcEnv.name)
 
           const data = tc.data[i]
-          if (data !== undefined || step.needData === false) {
+          if (
+            (data !== undefined && data !== null) ||
+            step.needData === false
+          ) {
             // get the testcase environment for this step
             assert.ok(
               tcEnvId,
