@@ -22,6 +22,9 @@ export default class ProgressMeter {
 
     // The current Step
     this.currentStep = 0
+
+    this.lastTestcase = ''
+    this.lastStep = ''
   }
 
   /**
@@ -66,6 +69,7 @@ export default class ProgressMeter {
    * @param name {string} The name of the current testcase
    */
   incTestcase(name) {
+    this.lastTestcase = name
     this.currentTestcase++
     this.currentTestcaseName = name
     this.update()
@@ -86,10 +90,16 @@ export default class ProgressMeter {
    * @param name {string} The name of the current step
    */
   incStep(name) {
+    this.lastStep = name
     this.currentStep++
     this.currentStepName = name
     this.update()
   }
+
+  /**
+   * Called when the test is over
+   */
+  done() {}
 
   /**
    * Updates the Output

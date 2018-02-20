@@ -1,73 +1,54 @@
-import ProgressBar from 'ascii-progress'
+import ProgressBar from 'ts-progress'
 
 import ProgressMeter from './ProgressMeter'
 
-export default class ProgressBarConsole extends ProgressMeter {
+export default class ProgressBarSimple extends ProgressMeter {
   constructor(opts = {}) {
     super(opts)
-
-    this.barTestcase = undefined
     this.barStep = undefined
-    this.barFailed = undefined
   }
 
-  init(opts) {
-    super.init(opts)
-
-    this.barTestcase = new ProgressBar({
-      schema:
-        'Test cases: [:bar.yellow] :current/:total :percent :elapseds :etas <:name>',
-      total: this.testcaseCount * this.stepCount,
-      clear: false,
-    })
-
-    this.barStep = new ProgressBar({
-      schema:
-        'Steps:      [:bar.green] :current/:total :percent :elapseds :etas <:name>',
-      total: this.stepCount,
-      clear: false,
-    })
-
-    this.barFailed = new ProgressBar({
-      schema: 'Failed:     [:bar.red] :current/:total :percent :elapseds :etas',
-      total: this.testcaseCount * this.stepCount,
-      clear: false,
-    })
-
-    // print the header
+  _printHeader() {
     console.log(`------------------------------------------------`) // eslint-disable-line no-console
     console.log(`| Execute suite:           ${this.name}`) // eslint-disable-line no-console
     console.log(`| Total step count:        ${this.stepCount}`) // eslint-disable-line no-console
     console.log(`| Total test case count:   ${this.testcaseCount}`) // eslint-disable-line no-console
     console.log(`------------------------------------------------`) // eslint-disable-line no-console
-
-    // make the bars Visible in the right order
-    this.barTestcase.tick()
-    this.barTestcase.tick(-1)
-
-    this.barStep.tick()
-    this.barStep.tick(-1)
-
-    this.barFailed.tick()
-    this.barFailed.tick(-1)
   }
 
-  /**
-   * increases the number of failed test cases
-   */
-  setFail() {
-    super.setFail()
-    this.barFailed.tick()
+  _printFooter() {
+    console.log(`------------------------------------------------`) // eslint-disable-line no-console
+    console.log(`| Result for suite:        ${this.name}`) // eslint-disable-line no-console
+    // eslint-disable-next-line no-console
+    console.log(
+      `| Steps:                   ${this.currentStep}/${this.stepCount}`
+    )
+    // eslint-disable-next-line no-console
+    console.log(
+      `| Testcase:                ${this.currentTestcase}/${this.testcaseCount}`
+    )
+    console.log(`| Last step:               ${this.lastStep}`) // eslint-disable-line no-console
+    console.log(`| Last test case:          ${this.lastTestcase}`) // eslint-disable-line no-console
+    console.log(`------------------------------------------------`) // eslint-disable-line no-console
   }
 
-  /**
-   * Increments the current testcase count. Will be called when starting
-   * a new test case in a step.
-   * @param name {string} The name of the current testcase
-   */
-  incTestcase(name) {
-    super.incTestcase(name)
-    this.barTestcase.tick({ name })
+  done() {
+    super.done()
+    this._printFooter()
+  }
+
+  init(opts) {
+    super.init(opts)
+
+    this._printHeader()
+
+    this.barStep = ProgressBar.create({
+      total: this.stepCount,
+      pattern:
+        'Step progress:  {bar} | {current}/{total} | Remaining: {remaining} | Elapsed: {elapsed} | Memory: {memory} ',
+      textColor: 'green',
+      updateFrequency: 100,
+    })
   }
 
   /**
@@ -77,6 +58,6 @@ export default class ProgressBarConsole extends ProgressMeter {
    */
   incStep(name) {
     super.incStep(name)
-    this.barStep.tick({ name })
+    this.barStep.update()
   }
 }

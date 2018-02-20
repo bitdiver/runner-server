@@ -104,6 +104,8 @@ export default class Runner {
       } else {
         await this._doRunNormal(opts)
       }
+
+      this.progressMeter.done()
     }
   }
 
@@ -194,13 +196,13 @@ export default class Runner {
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
 
-          this.progressMeter.incTestcase(tcEnv.name)
-
           const data = tc.data[i]
           if (
             (data !== undefined && data !== null) ||
             step.needData === false
           ) {
+            this.progressMeter.incTestcase(tcEnv.name)
+
             // get the testcase environment for this step
             assert.ok(
               tcEnvId,
@@ -227,6 +229,8 @@ export default class Runner {
             step.testMode = testMode
             step.logAdapter = this
             step.environmentRun = this.environmentRun
+          } else {
+            this.progressMeter.incTestcase('')
           }
         }
       }
