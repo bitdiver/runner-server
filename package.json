@@ -16,7 +16,7 @@
     "src_lint": "eslint src tests",
     "src_format": "prettier --no-semi --single-quote --trailing-comma es5 --write \"{src,tests}/**/*.js\"",
     "test_only": "jest",
-    "test": "npm run src_format && npm run src_lint && npm run build && jest -c jest.config.json",
+    "test": "npm run build && jest -c jest.config.json",
     "test-manual": "npm run src_format && npm run src_lint && npm run build && babel-node tests/ProgressBarConsoleManual.js",
     "debug-manual": "npm run src_format && npm run src_lint && npm run build && babel-node  --inspect-brk tests/ProgressBarConsoleManual.js",
     "debug": "npm run build && node --inspect-brk ./node_modules/.bin/jest -i --config=./jest.config.json",
