@@ -54,7 +54,7 @@
     "jest-environment-node-debug": "^2.0.0",
     "prettier": "^1.10.2",
     "regenerator-runtime": "^0.11.0",
-    "semantic-release": "^12.4.1"
+    "semantic-release": "^15.0.0"
   },
   "dependencies": {
     "@bitdiver/definition": "^1.0.0",
