@@ -284,11 +284,19 @@ export default class Runner {
    * @return promise {promise} A promise when all the step instances are executed
    */
   async _executeStepMethodParallel(stepInstances, methods) {
+    let maxParallelSteps = this.maxParallelSteps
+    if (
+      stepInstances[0].maxParallelSteps !== undefined &&
+      stepInstances[0].maxParallelSteps < maxParallelSteps
+    ) {
+      maxParallelSteps = stepInstances[0].maxParallelSteps
+    }
+
     const promiseFunctions = []
     for (const stepInstance of stepInstances) {
       promiseFunctions.push(() => this._getMethodPromise(stepInstance, methods))
     }
-    return pAll(promiseFunctions, { concurrency: this.maxParallelSteps })
+    return pAll(promiseFunctions, { concurrency: maxParallelSteps })
   }
 
   /**
