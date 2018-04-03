@@ -234,7 +234,13 @@ export default class Runner {
           }
         }
       }
-      await this._executeSteps(steps)
+
+      if (steps.length > 0) {
+        await this._executeSteps(steps)
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(`No instance of step '${step.name}'`)
+      }
     }
 
     await this._closeTestcases()

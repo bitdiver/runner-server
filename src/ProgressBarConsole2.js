@@ -146,7 +146,6 @@ export default class ProgressBarConsole extends ProgressMeter {
    * Updates the Output
    */
   update() {
-    debugger
     this.printProgressBar('Steps      :', this.currentStep, this.stepCount, 1)
     this.printProgressBar(
       'Test cases :',
