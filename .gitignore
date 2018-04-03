@@ -3,3 +3,4 @@ node_modules
 coverage
 jsdoc
 npm-debug.log
+yarn.lock
