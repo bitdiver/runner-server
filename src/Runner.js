@@ -121,7 +121,8 @@ export default class Runner {
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
   async _doRunBatch(opts = {}) {
-    await this._logStartRun()
+    const stepCount = Object.keys(this.steps).length
+    await this._logStartRun({ testCaseCount: this.testcases.length, stepCount })
 
     const testMode = opts.testMode ? opts.testMode : false
 
@@ -132,8 +133,6 @@ export default class Runner {
         stepIds = tc.steps
       }
     })
-
-    const stepCount = Object.keys(this.steps).length
 
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
@@ -245,7 +244,37 @@ export default class Runner {
 
     await this._closeTestcases()
 
-    await this._logEndRun()
+    await this._logEndRun(this._getRunStatus())
+  }
+
+  /**
+   * Computes the status of this run and returns an object with the detail information
+   * @return status {object} An object with the status summary of this run
+   */
+  _getRunStatus() {
+    const testCaseCount = this.testcases.length
+    const stepCount = Object.keys(this.steps).length
+    let fail = 0
+    let unknown = 0
+    let warn = 0
+    let pass = 0
+
+    for (const tcEnvId of this.environmentTestcaseIds) {
+      const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+
+      if (tcEnv.status === STATUS_WARNING) {
+        warn++
+      } else if (tcEnv.status === STATUS_ERROR) {
+        fail++
+      } else if (tcEnv.status === STATUS_FATAL) {
+        fail++
+      } else if (tcEnv.status === STATUS_OK) {
+        pass++
+      } else if (tcEnv.status === STATUS_UNKNOWN) {
+        unknown++
+      }
+    }
+    return { testCaseCount, stepCount, status: { fail, unknown, warn, pass } }
   }
 
   /**
@@ -257,7 +286,11 @@ export default class Runner {
     // -----------------------
     const logPromisses = []
     for (const environmentTestcase of this.environmentTestcaseMap.values()) {
-      if (this.environmentRun.status > STATUS_ERROR) {
+      if (
+        this.environmentRun.status === STATUS_FATAL &&
+        environmentTestcase.status < STATUS_ERROR
+      ) {
+        // The run aborted due to some error end the testcase was not yet finished
         environmentTestcase.status = STATUS_UNKNOWN
       }
       environmentTestcase.running = false
@@ -416,10 +449,11 @@ export default class Runner {
    * Logs the start of a run
    * @return promise {promise} A promise indicating when the log was written
    */
-  _logStartRun() {
+  _logStartRun(opts = {}) {
     const data = {
       message: 'Start Run',
       suite: this.name,
+      ...opts,
     }
     return generateLogs(
       this.environmentRun,
@@ -434,11 +468,12 @@ export default class Runner {
    * Logs the end of a run
    * @return promise {promise} A promise indicating when the log was written
    */
-  _logEndRun() {
+  _logEndRun(opts = {}) {
     const data = {
       message: 'Stop Run',
       suite: this.name,
       status: this.environmentRun.status,
+      ...opts,
     }
     return generateLogs(
       this.environmentRun,
