@@ -57,7 +57,7 @@
     "semantic-release": "15.1.5"
   },
   "dependencies": {
-    "@bitdiver/definition": "1.0.0",
+    "@bitdiver/definition": "1.0.1",
     "@bitdiver/model": "1.2.3",
     "jsonfile": "4.0.0",
     "mkdirp": "0.5.1",
