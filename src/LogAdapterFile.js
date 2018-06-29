@@ -1,5 +1,6 @@
 'use strict'
 
+import fs from 'fs'
 import assert from 'assert'
 import moment from 'moment'
 import path from 'path'
@@ -51,7 +52,7 @@ class LogAdapterFile {
    *     }
    * @return promise {promise} A promise for writing the file
    */
-  log(logMessage) {
+  async log(logMessage) {
     assert.ok(logMessage.meta, 'The log message does not have a meta object')
     assert.ok(logMessage.data, 'The log message does not have a data object')
 
@@ -82,34 +83,69 @@ class LogAdapterFile {
 
     const dir = path.join(...targetPath)
 
-    return new Promise((resolve, reject) => {
-      mkdirp(dir, err => {
+    return new Promise(async (resolve, reject) => {
+      mkdirp(dir, async err => {
         if (err) {
           reject(err)
-        }
-        resolve()
-      })
-    }).then(() => {
-      const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
-      const fileName = `${timeStamp}_${logLevel}.json`
-      targetPath.push(fileName)
+        } else {
+          const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
+          // const fileName = `${timeStamp}_${logLevel}.json`
+          // targetPath.push(fileName)
+          //
+          // const file = path.join(...targetPath)
 
-      const file = path.join(...targetPath)
+          const file = await this.getFileName(targetPath, timeStamp, logLevel)
 
-      return new Promise((resolve, reject) => {
-        jsonfile.writeFile(
-          file,
-          { meta: { time }, data, logLevel },
-          { spaces: 2 },
-          err => {
-            if (err) {
-              reject(err)
+          jsonfile.writeFile(
+            file,
+            { meta: { time }, data, logLevel },
+            { spaces: 2 },
+            err1 => {
+              if (err1) {
+                reject(err1)
+              }
+              resolve()
             }
-            resolve()
-          }
-        )
+          )
+        }
       })
     })
+  }
+
+  /**
+   * Creates a filename which does not yet exists
+   * @param targetPath {array} An array of path segements
+   * @param timeStamp {string} The current time stamp
+   * @param logLevel {string} The loglevel of this message
+   * @return fileName {string} A new created not existing file name
+   */
+  async getFileName(targetPath, timeStamp, logLevel) {
+    let fileName
+    let fileIsOk
+    let seq = 0
+    do {
+      if (seq === 0) {
+        fileName = path.join(...targetPath, `${timeStamp}_${logLevel}.json`)
+      } else {
+        fileName = path.join(
+          ...targetPath,
+          `${timeStamp}_${seq}_${logLevel}.json`
+        )
+      }
+
+      fileIsOk = await new Promise(resolve => {
+        fs.access(fileName, fs.constants.F_OK, err => {
+          if (err) {
+            resolve(true) // err means that the file does not exists
+          } else {
+            resolve(false)
+          }
+        })
+      })
+      seq++
+    } while (!fileIsOk)
+
+    return fileName
   }
 }
 
