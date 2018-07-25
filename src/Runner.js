@@ -173,7 +173,7 @@ export default class Runner {
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
           this.progressMeter.incTestcase(tcEnv.name)
 
-          if (tcEnv.running) {
+          if (tcEnv.running || step.runOnError) {
             const data = tc.data[i]
             step.data.push(data)
             step.environmentTestcase.push(tcEnv)
@@ -214,7 +214,10 @@ export default class Runner {
             )
             step.environmentTestcase = tcEnv
             // only execute steps for testcases which not have failed
-            if (tcEnv.status < STATUS_ERROR && tcEnv.running) {
+            if (
+              (tcEnv.status < STATUS_ERROR && tcEnv.running) ||
+              step.runOnError
+            ) {
               step.countCurrent = i + 1
               step.countAll = stepCount
               step.name = stepDefinition.name
