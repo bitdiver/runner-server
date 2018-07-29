@@ -52,7 +52,7 @@
     "jest": "22.4.3",
     "jest-cli": "22.4.4",
     "jest-environment-node-debug": "2.0.0",
-    "prettier": "1.12.0",
+    "prettier": "1.14.0",
     "regenerator-runtime": "0.12.0",
     "semantic-release": "15.1.5"
   },
