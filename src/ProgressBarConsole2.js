@@ -40,8 +40,8 @@ export default class ProgressBarConsole extends ProgressMeter {
   createBar(count = 0, total = 100, barLength) {
     let ticks = 0
     if (count > 0 && total > 0) {
-      const percent = count / total * 100
-      ticks = Math.floor(percent / 100 * barLength)
+      const percent = (count / total) * 100
+      ticks = Math.floor((percent / 100) * barLength)
     }
 
     const bar = this.repeat(PROGRESS_BAR_CHARCTER, ticks)

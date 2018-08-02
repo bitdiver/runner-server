@@ -3,6 +3,8 @@ import { Runner, getLogAdapter } from '../lib/index'
 // import { getLogAdapter } from '../lib/index'
 import { getLogAdapterMemory } from '@bitdiver/model'
 
+import { StepDefinition } from '@bitdiver/definition'
+
 const logAdapter = getLogAdapterMemory()
 const logAdapterFile = getLogAdapter()
 const TIMEOUT = 1000000
@@ -197,21 +199,9 @@ test(
 
     // await logAdapter.writeFile('log/runlog.json')
     expect(res).toEqual({
-      'TC 1': {
-        logCount: 1,
-        status: 2,
-        stepCount: 1,
-      },
-      'TC 2': {
-        logCount: 2,
-        status: 5,
-        stepCount: 1,
-      },
-      'TC 3': {
-        logCount: 1,
-        status: 2,
-        stepCount: 1,
-      },
+      'TC 1': { logCount: 1, status: 2, stepCount: 4 },
+      'TC 2': { logCount: 2, status: 5, stepCount: 1 },
+      'TC 3': { logCount: 1, status: 2, stepCount: 4 },
     })
     done()
   },
@@ -231,21 +221,9 @@ test(
     })
 
     expect(res).toEqual({
-      'TC 1': {
-        logCount: 1,
-        status: 2,
-        stepCount: 1,
-      },
-      'TC 2': {
-        logCount: 2,
-        status: 5,
-        stepCount: 1,
-      },
-      'TC 3': {
-        logCount: 1,
-        status: 2,
-        stepCount: 1,
-      },
+      'TC 1': { logCount: 1, status: 2, stepCount: 4 },
+      'TC 2': { logCount: 2, status: 5, stepCount: 1 },
+      'TC 3': { logCount: 1, status: 2, stepCount: 4 },
     })
     done()
   },
@@ -317,6 +295,76 @@ test(
         stepCount: 2,
       },
     })
+    done()
+  },
+  TIMEOUT
+)
+
+test(
+  'Run test case with step runOnError=true (Linear Execution)',
+  async done => {
+    const options = {
+      parallelExecution: false,
+      extendedRes: true,
+      posTc: 1, // The tc where to store the action
+      posStep: 1, // The step where to store the action
+      action: 'logError', // The action of the testcase data
+      value: 'ERROR Single', // The value for the action
+    }
+
+    logAdapter.clear()
+    const suiteDefiniton = createSuite()
+
+    const data = {
+      run: {
+        action: options.action,
+        value: options.value,
+      },
+    }
+    suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
+
+    const runOnErrorStep = new StepDefinition({
+      class: 'runOnError',
+      name: `Step single wich runs after Error`,
+      description: `Desc for step`,
+    })
+
+    suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
+    for (const tc of suiteDefiniton.testcases) {
+      tc.data.push(undefined)
+    }
+
+    // The helper has added the same array to all the testcases,
+    // so only push this additional once
+    suiteDefiniton.testcases[0].steps.push(runOnErrorStep.id)
+
+    const runner = new Runner({
+      stepRegistry: registry,
+      logAdapter,
+      parallelExecution: options.parallelExecution,
+    })
+
+    await runner.run(suiteDefiniton)
+
+    // no check the log status
+    const res = checkTcStatus(options.extendedRes)
+
+    expect(res).toEqual({
+      'TC 1': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 2': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 3': { logCount: 2, status: 4, stepCount: 3 },
+    })
+    debugger
+    const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
+    expect(
+      logs['TC 1'].steps['Step single wich runs after Error'].logs[2]
+    ).toEqual({
+      countAll: 6,
+      countCurrent: 6,
+      data: { message: 'Step run' },
+      logLevel: 'info',
+    })
+
     done()
   },
   TIMEOUT

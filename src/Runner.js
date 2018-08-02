@@ -136,10 +136,10 @@ export default class Runner {
 
     // first iterate the steps and then the testscases
     for (let i = 0; i < stepIds.length; i++) {
-      if (this._shoulStopRun()) {
-        // OK we can stop the run here
-        break
-      }
+      // if (this._shouldStopRun()) {
+      //   // OK we can stop the run here
+      //   break
+      // }
 
       this.progressMeter.startOverTestcase()
 
@@ -183,7 +183,11 @@ export default class Runner {
         // there is data or it runs without data
         step.name = stepDefinition.name
         step.description = stepDefinition.description
-        steps.push(step)
+
+        if (!this._shouldStopRun() || step.runOnError) {
+          // OK the step should run
+          steps.push(step)
+        }
       } else {
         // Normal step
         for (
@@ -617,7 +621,7 @@ export default class Runner {
    * If no return true
    * @return shouldStop {boolean} true, if the suite should be stopped
    */
-  _shoulStopRun() {
+  _shouldStopRun() {
     if (this.environmentRun.status === STATUS_FATAL) {
       return true
     }

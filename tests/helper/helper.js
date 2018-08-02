@@ -8,6 +8,8 @@ import {
 import { StepRegistry } from '@bitdiver/model'
 import StepNormal from './StepNormal'
 import StepSingle from './StepSingle'
+import StepSingleRunOnError from './StepSingleRunOnError'
+import StepRunOnError from './StepRunOnError'
 
 const DEFAULT_TC_COUNT = 3
 const DEFAULT_STEP_COUNT = 5
@@ -90,6 +92,7 @@ export function createRegistry() {
   const stepRegistry = new StepRegistry()
   stepRegistry.registerStep('normal', StepNormal)
   stepRegistry.registerStep('single', StepSingle)
-
+  stepRegistry.registerStep('runOnError', StepRunOnError)
+  stepRegistry.registerStep('singleRunOnError', StepSingleRunOnError)
   return stepRegistry
 }
