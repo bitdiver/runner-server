@@ -325,7 +325,7 @@ test(
 
     const runOnErrorStep = new StepDefinition({
       class: 'runOnError',
-      name: `Step single wich runs after Error`,
+      name: `Step which runs after Error`,
       description: `Desc for step`,
     })
 
@@ -354,10 +354,78 @@ test(
       'TC 2': { logCount: 2, status: 4, stepCount: 3 },
       'TC 3': { logCount: 2, status: 4, stepCount: 3 },
     })
-    debugger
     const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
+    expect(logs['TC 1'].steps['Step which runs after Error'].logs[2]).toEqual({
+      countAll: 6,
+      countCurrent: 6,
+      data: { message: 'Step run' },
+      logLevel: 'info',
+    })
+
+    done()
+  },
+  TIMEOUT
+)
+
+test(
+  'Run test case with step singleRunOnError=true (Linear Execution)',
+  async done => {
+    const options = {
+      parallelExecution: false,
+      extendedRes: true,
+      posTc: 1, // The tc where to store the action
+      posStep: 1, // The step where to store the action
+      action: 'logError', // The action of the testcase data
+      value: 'ERROR Single', // The value for the action
+    }
+
+    logAdapter.clear()
+    const suiteDefiniton = createSuite()
+
+    const data = {
+      run: {
+        action: options.action,
+        value: options.value,
+      },
+    }
+    suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
+
+    const runOnErrorStep = new StepDefinition({
+      class: 'singleRunOnError',
+      name: `Step single which runs after Error`,
+      description: `Desc for step`,
+    })
+
+    suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
+    for (const tc of suiteDefiniton.testcases) {
+      tc.data.push(undefined)
+    }
+
+    // The helper has added the same array to all the testcases,
+    // so only push this additional once
+    suiteDefiniton.testcases[0].steps.push(runOnErrorStep.id)
+
+    const runner = new Runner({
+      stepRegistry: registry,
+      logAdapter,
+      parallelExecution: options.parallelExecution,
+    })
+
+    await runner.run(suiteDefiniton)
+
+    // no check the log status
+    const res = checkTcStatus(options.extendedRes)
+
+    expect(res).toEqual({
+      'TC 1': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 2': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 3': { logCount: 2, status: 4, stepCount: 3 },
+    })
+
+    const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
+    debugger
     expect(
-      logs['TC 1'].steps['Step single wich runs after Error'].logs[2]
+      logs['TC 1'].steps['Step single which runs after Error'].logs[2]
     ).toEqual({
       countAll: 6,
       countCurrent: 6,

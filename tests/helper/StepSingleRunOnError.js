@@ -11,6 +11,6 @@ export default class StepSingleRunOnError extends StepBase {
   }
 
   async doRun() {
-    return this.logger.info('Yeah, it runs')
+    return this.logAdapter.logInfo('Yeah, it runs')
   }
 }
