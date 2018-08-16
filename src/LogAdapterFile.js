@@ -20,9 +20,45 @@ export const LEVEL_FATAL = 'fatal'
  */
 class LogAdapterFile {
   constructor(opts) {
-    const param = { targetDir: 'log', ...opts }
+    const param = { targetDir: 'log', logLevel: 'warn', ...opts }
 
     this.targetDir = param.targetDir
+    this.logAdapterLogLevel = param.logLevel
+
+    // eslint-disable-next-line no-console
+    console.log(
+      'LogAdapterFile configured log level: ' + this.logAdapterLogLevel
+    )
+  }
+
+  /**
+   * Gets a numeric loglevel by loglevel symbol
+   * @param loglevel {string} the loglevel to calc the numeric value for
+   * @param logLevel {number} the numeric value
+   */
+  _getLogLevel(logLevel) {
+    if (LEVEL_DEBUG === logLevel) {
+      return 1
+    } else if (LEVEL_INFO === logLevel) {
+      return 2
+    } else if (LEVEL_WARNING === logLevel) {
+      return 3
+    } else if (LEVEL_ERROR === logLevel) {
+      return 4
+    } else if (LEVEL_FATAL === logLevel) {
+      return 5
+    }
+  }
+
+  /**
+   * Function which determines if a log message should be logged
+   * @param messageLogLevel {string} the message loglevel
+   */
+  _messageShouldBeLogged(messageLogLevel) {
+    return (
+      this._getLogLevel(messageLogLevel) >=
+      this._getLogLevel(this.logAdapterLogLevel)
+    )
   }
 
   /**
@@ -58,58 +94,71 @@ class LogAdapterFile {
 
     const meta = logMessage.meta
     const data = logMessage.data
-    const logLevel = logMessage.logLevel
-    // const logLevel = logMessage.logLevel
-    const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
+    const messageLogLevel = meta.logLevel
 
-    const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
-    if (meta.tc !== undefined && meta.tc.name !== undefined) {
-      const tcCountAllLength = String(meta.tc.countAll).length
-      const tcNumberStr = sprintf(
-        `%0${tcCountAllLength}d`,
-        meta.tc.countCurrent
-      )
+    const messageShouldBeLogged = this._messageShouldBeLogged(
+      messageLogLevel,
+      this.logAdapterLogLevel
+    )
 
-      targetPath.push(`TC_${tcNumberStr}_${meta.tc.name}`)
-      if (meta.step !== undefined && meta.step.name !== undefined) {
-        const stringCountLength = String(meta.step.countCurrent).length
-        const stepNumber = sprintf(
-          `%0${stringCountLength}d`,
-          meta.step.countCurrent
+    if (messageShouldBeLogged) {
+      const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
+
+      const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
+      if (meta.tc !== undefined && meta.tc.name !== undefined) {
+        const tcCountAllLength = String(meta.tc.countAll).length
+        const tcNumberStr = sprintf(
+          `%0${tcCountAllLength}d`,
+          meta.tc.countCurrent
         )
-        targetPath.push(`Step_${stepNumber}_${meta.step.name}`)
-      }
-    }
 
-    const dir = path.join(...targetPath)
-
-    return new Promise(async (resolve, reject) => {
-      mkdirp(dir, async err => {
-        if (err) {
-          reject(err)
-        } else {
-          const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
-          // const fileName = `${timeStamp}_${logLevel}.json`
-          // targetPath.push(fileName)
-          //
-          // const file = path.join(...targetPath)
-
-          const file = await this.getFileName(targetPath, timeStamp, logLevel)
-
-          jsonfile.writeFile(
-            file,
-            { meta: { time }, data, logLevel },
-            { spaces: 2 },
-            err1 => {
-              if (err1) {
-                reject(err1)
-              }
-              resolve()
-            }
+        targetPath.push(`TC_${tcNumberStr}_${meta.tc.name}`)
+        if (meta.step !== undefined && meta.step.name !== undefined) {
+          const stringCountLength = String(meta.step.countCurrent).length
+          const stepNumber = sprintf(
+            `%0${stringCountLength}d`,
+            meta.step.countCurrent
           )
+          targetPath.push(`Step_${stepNumber}_${meta.step.name}`)
         }
+      }
+
+      const dir = path.join(...targetPath)
+
+      return new Promise(async (resolve, reject) => {
+        mkdirp(dir, async err => {
+          if (err) {
+            reject(err)
+          } else {
+            const timeStamp = moment(Date.now()).format(
+              'YYYY-MM-DD_HH:mm:ss.SSS'
+            )
+            // const fileName = `${timeStamp}_${logLevel}.json`
+            // targetPath.push(fileName)
+            //
+            // const file = path.join(...targetPath)
+
+            const file = await this.getFileName(
+              targetPath,
+              timeStamp,
+              messageLogLevel
+            )
+
+            jsonfile.writeFile(
+              file,
+              { meta: { time }, data, messageLogLevel },
+              { spaces: 2 },
+              err1 => {
+                if (err1) {
+                  reject(err1)
+                }
+                resolve()
+              }
+            )
+          }
+        })
       })
-    })
+    }
   }
 
   /**
