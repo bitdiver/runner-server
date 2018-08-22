@@ -20,7 +20,7 @@ export const LEVEL_FATAL = 'fatal'
  */
 class LogAdapterFile {
   constructor(opts) {
-    const param = { targetDir: 'log', logLevel: 'warn', ...opts }
+    const param = { targetDir: 'log', logLevel: LEVEL_WARNING, ...opts }
 
     this.targetDir = param.targetDir
     this.logAdapterLogLevel = param.logLevel
@@ -94,7 +94,7 @@ class LogAdapterFile {
 
     const meta = logMessage.meta
     const data = logMessage.data
-    const messageLogLevel = meta.logLevel
+    const messageLogLevel = logMessage.logLevel
 
     const messageShouldBeLogged = this._messageShouldBeLogged(
       messageLogLevel,

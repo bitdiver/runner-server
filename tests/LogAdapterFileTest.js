@@ -3,39 +3,39 @@ const LOG_ADAPTER = getLogAdapter()
 
 const LOG_ADAPTER_LOG_LEVEL = 'warn'
 
-test('Loglevel debug', async done => {
+test('>Loglevel debug', async done => {
   const logMessage = {
     meta: {
       run: {
         start: 1533720241284,
       },
-      logLevel: 'debug',
     },
+    logLevel: 'debug',
     data: {},
   }
 
   expect(
     await LOG_ADAPTER._messageShouldBeLogged(
-      logMessage.meta.logLevel,
+      logMessage.logLevel,
       LOG_ADAPTER_LOG_LEVEL
     )
   ).toEqual(false)
   done()
 })
 
-test('Loglevel info', async done => {
+test('>Loglevel info', async done => {
   const logMessage = {
     meta: {
       run: {
         start: 1533720241284,
       },
-      logLevel: 'info',
     },
+    logLevel: 'info',
     data: {},
   }
   expect(
     await LOG_ADAPTER._messageShouldBeLogged(
-      logMessage.meta.logLevel,
+      logMessage.logLevel,
       LOG_ADAPTER_LOG_LEVEL
     )
   ).toEqual(false)
@@ -48,14 +48,14 @@ test('Loglevel warn', async done => {
       run: {
         start: 1533720241284,
       },
-      logLevel: 'warn',
     },
+    logLevel: 'warn',
     data: {},
   }
 
   expect(
     await LOG_ADAPTER._messageShouldBeLogged(
-      logMessage.meta.logLevel,
+      logMessage.logLevel,
       LOG_ADAPTER_LOG_LEVEL
     )
   ).toEqual(true)
@@ -68,14 +68,14 @@ test('Loglevel error', async done => {
       run: {
         start: 1533720241284,
       },
-      logLevel: 'error',
     },
+    logLevel: 'error',
     data: {},
   }
 
   expect(
     await LOG_ADAPTER._messageShouldBeLogged(
-      logMessage.meta.logLevel,
+      logMessage.logLevel,
       LOG_ADAPTER_LOG_LEVEL
     )
   ).toEqual(true)
@@ -88,14 +88,14 @@ test('LogLevel fatal', async done => {
       run: {
         start: 1533720241284,
       },
-      logLevel: 'fatal',
     },
+    logLevel: 'fatal',
     data: {},
   }
 
   expect(
     await LOG_ADAPTER._messageShouldBeLogged(
-      logMessage.meta.logLevel,
+      logMessage.logLevel,
       LOG_ADAPTER_LOG_LEVEL
     )
   ).toEqual(true)
