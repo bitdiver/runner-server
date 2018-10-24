@@ -24,9 +24,45 @@ export const LEVEL_FATAL = 'fatal'
  */
 class LogAdapterFile {
   constructor(opts) {
-    const param = { targetDir: 'log', ...opts }
+    const param = { targetDir: 'log', logLevel: LEVEL_WARNING, ...opts }
 
     this.targetDir = param.targetDir
+    this.logAdapterLogLevel = param.logLevel
+
+    // eslint-disable-next-line no-console
+    console.log(
+      'LogAdapterFile configured log level: ' + this.logAdapterLogLevel
+    )
+  }
+
+  /**
+   * Gets a numeric loglevel by loglevel symbol
+   * @param loglevel {string} the loglevel to calc the numeric value for
+   * @param logLevel {number} the numeric value
+   */
+  _getLogLevel(logLevel) {
+    if (LEVEL_DEBUG === logLevel) {
+      return 1
+    } else if (LEVEL_INFO === logLevel) {
+      return 2
+    } else if (LEVEL_WARNING === logLevel) {
+      return 3
+    } else if (LEVEL_ERROR === logLevel) {
+      return 4
+    } else if (LEVEL_FATAL === logLevel) {
+      return 5
+    }
+  }
+
+  /**
+   * Function which determines if a log message should be logged
+   * @param messageLogLevel {string} the message loglevel
+   */
+  _messageShouldBeLogged(messageLogLevel) {
+    return (
+      this._getLogLevel(messageLogLevel) >=
+      this._getLogLevel(this.logAdapterLogLevel)
+    )
   }
 
   /**
@@ -62,7 +98,14 @@ class LogAdapterFile {
 
     const meta = logMessage.meta
     const data = logMessage.data
-    const logLevel = logMessage.logLevel
+    const messageLogLevel = logMessage.logLevel
+
+    const messageShouldBeLogged = this._messageShouldBeLogged(
+      messageLogLevel,
+      this.logAdapterLogLevel
+    )
+
+    if (messageShouldBeLogged) {
     const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
 
     const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
@@ -87,9 +130,9 @@ class LogAdapterFile {
     await md(path.join(...targetPath))
 
     const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
-    const file = await this.getFileName(targetPath, timeStamp, logLevel)
+    const file = await this.getFileName(targetPath, timeStamp, messageLogLevel)
     const fileContent = JSON.stringify(
-      { meta: { time }, data, logLevel },
+      { meta: { time }, data, messageLogLevel },
       null,
       2
     )
