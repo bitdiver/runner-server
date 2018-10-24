@@ -1,12 +1,16 @@
 'use strict'
 
 import fs from 'fs'
+import util from 'util'
 import assert from 'assert'
 import moment from 'moment'
 import path from 'path'
 import mkdirp from 'mkdirp'
-import jsonfile from 'jsonfile'
 import { sprintf } from 'sprintf-js'
+
+const writeFile = util.promisify(fs.writeFile)
+const fileNameFree = util.promisify(fs.access)
+const md = util.promisify(mkdirp)
 
 export const LEVEL_DEBUG = 'debug'
 export const LEVEL_INFO = 'info'
@@ -59,7 +63,6 @@ class LogAdapterFile {
     const meta = logMessage.meta
     const data = logMessage.data
     const logLevel = logMessage.logLevel
-    // const logLevel = logMessage.logLevel
     const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
 
     const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
@@ -81,35 +84,17 @@ class LogAdapterFile {
       }
     }
 
-    const dir = path.join(...targetPath)
+    await md(path.join(...targetPath))
 
-    return new Promise(async (resolve, reject) => {
-      mkdirp(dir, async err => {
-        if (err) {
-          reject(err)
-        } else {
-          const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
-          // const fileName = `${timeStamp}_${logLevel}.json`
-          // targetPath.push(fileName)
-          //
-          // const file = path.join(...targetPath)
+    const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
+    const file = await this.getFileName(targetPath, timeStamp, logLevel)
+    const fileContent = JSON.stringify(
+      { meta: { time }, data, logLevel },
+      null,
+      2
+    )
 
-          const file = await this.getFileName(targetPath, timeStamp, logLevel)
-
-          jsonfile.writeFile(
-            file,
-            { meta: { time }, data, logLevel },
-            { spaces: 2 },
-            err1 => {
-              if (err1) {
-                reject(err1)
-              }
-              resolve()
-            }
-          )
-        }
-      })
-    })
+    return writeFile(file, fileContent)
   }
 
   /**
@@ -133,15 +118,14 @@ class LogAdapterFile {
         )
       }
 
-      fileIsOk = await new Promise(resolve => {
-        fs.access(fileName, fs.constants.F_OK, err => {
-          if (err) {
-            resolve(true) // err means that the file does not exists
-          } else {
-            resolve(false)
-          }
-        })
-      })
+      try {
+        await fileNameFree(fileName, fs.constants.F_OK)
+        fileIsOk = false
+      } catch (e) {
+        // eslint-disable-line no-unsed-vars
+        fileIsOk = true
+      }
+
       seq++
     } while (!fileIsOk)
 

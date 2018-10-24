@@ -1,6 +1,5 @@
 import { createSuite, createRegistry } from './helper/helper'
 import { Runner, getLogAdapter } from '../lib/index'
-// import { getLogAdapter } from '../lib/index'
 import { getLogAdapterMemory } from '@bitdiver/model'
 
 import { StepDefinition } from '@bitdiver/definition'
@@ -10,7 +9,7 @@ const logAdapterFile = getLogAdapter()
 const TIMEOUT = 1000000
 const registry = createRegistry()
 
-test(
+test.only(
   'Run with file logAdapter',
   async done => {
     const options = {
