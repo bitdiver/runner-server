@@ -28,11 +28,6 @@ class LogAdapterFile {
 
     this.targetDir = param.targetDir
     this.logAdapterLogLevel = param.logLevel
-
-    // eslint-disable-next-line no-console
-    console.log(
-      'LogAdapterFile configured log level: ' + this.logAdapterLogLevel
-    )
   }
 
   /**
@@ -106,38 +101,43 @@ class LogAdapterFile {
     )
 
     if (messageShouldBeLogged) {
-    const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
+      const time = logMessage.meta.time ? logMessage.meta.time : Date.now()
 
-    const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
-    if (meta.tc !== undefined && meta.tc.name !== undefined) {
-      const tcCountAllLength = String(meta.tc.countAll).length
-      const tcNumberStr = sprintf(
-        `%0${tcCountAllLength}d`,
-        meta.tc.countCurrent
+      const targetPath = [this.targetDir, `Run_${String(meta.run.start)}`]
+      if (meta.tc !== undefined && meta.tc.name !== undefined) {
+        const tcCountAllLength = String(meta.tc.countAll).length
+        const tcNumberStr = sprintf(
+          `%0${tcCountAllLength}d`,
+          meta.tc.countCurrent
+        )
+
+        targetPath.push(`TC_${tcNumberStr}_${meta.tc.name}`)
+        if (meta.step !== undefined && meta.step.name !== undefined) {
+          const stringCountLength = String(meta.step.countCurrent).length
+          const stepNumber = sprintf(
+            `%0${stringCountLength}d`,
+            meta.step.countCurrent
+          )
+          targetPath.push(`Step_${stepNumber}_${meta.step.name}`)
+        }
+      }
+
+      await md(path.join(...targetPath))
+
+      const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
+      const file = await this.getFileName(
+        targetPath,
+        timeStamp,
+        messageLogLevel
+      )
+      const fileContent = JSON.stringify(
+        { meta: { time }, data, messageLogLevel },
+        null,
+        2
       )
 
-      targetPath.push(`TC_${tcNumberStr}_${meta.tc.name}`)
-      if (meta.step !== undefined && meta.step.name !== undefined) {
-        const stringCountLength = String(meta.step.countCurrent).length
-        const stepNumber = sprintf(
-          `%0${stringCountLength}d`,
-          meta.step.countCurrent
-        )
-        targetPath.push(`Step_${stepNumber}_${meta.step.name}`)
-      }
+      return writeFile(file, fileContent)
     }
-
-    await md(path.join(...targetPath))
-
-    const timeStamp = moment(Date.now()).format('YYYY-MM-DD_HH:mm:ss.SSS')
-    const file = await this.getFileName(targetPath, timeStamp, messageLogLevel)
-    const fileContent = JSON.stringify(
-      { meta: { time }, data, messageLogLevel },
-      null,
-      2
-    )
-
-    return writeFile(file, fileContent)
   }
 
   /**
