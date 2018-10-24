@@ -49,13 +49,12 @@
     "eslint": "5.2.0",
     "eslint-config-prettier": "2.9.0",
     "eslint-plugin-babel": "5.1.0",
-    "heapdump": "^0.3.9",
     "jest": "23.4.2",
     "jest-cli": "23.4.2",
     "jest-environment-node-debug": "2.0.0",
     "prettier": "1.14.0",
     "regenerator-runtime": "0.12.0",
-    "rimraf": "^2.6.2",
+    "rimraf": "2.6.2",
     "semantic-release": "15.9.3"
   },
   "dependencies": {
