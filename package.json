@@ -64,6 +64,6 @@
     "moment": "2.22.2",
     "p-all": "1.0.0",
     "sprintf-js": "1.1.1",
-    "ts-progress": "0.1.6"
+    "ts-progress": "0.1.7"
   }
 }
