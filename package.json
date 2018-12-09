@@ -63,7 +63,7 @@
     "mkdirp": "0.5.1",
     "moment": "2.22.2",
     "p-all": "1.0.0",
-    "sprintf-js": "1.1.1",
+    "sprintf-js": "1.1.2",
     "ts-progress": "0.1.6"
   }
 }
