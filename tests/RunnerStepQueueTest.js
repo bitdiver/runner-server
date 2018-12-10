@@ -1,6 +1,6 @@
 import { createRegistry } from './helper/helper'
 import { Runner } from '../lib/index'
-import { getLogAdapterMemory } from '@bitdiver/model'
+import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 import StepTestQueue from './helper/StepTestQueue'
 

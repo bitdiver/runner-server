@@ -1,7 +1,8 @@
 import { StepBase } from '@bitdiver/model'
+import { getLogAdapterFile } from '@bitdiver/logadapter'
 
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner, getLogAdapter } from '../lib/index'
+import { Runner } from '../lib/index'
 
 import heapdump from 'heapdump'
 import path from 'path'
@@ -21,7 +22,7 @@ mkdirp.sync(logs)
 const fileNameHeapDump1 = path.join(volatile, 'heapDump1.heapsnapshot')
 const fileNameHeapDump2 = path.join(volatile, 'heapDump2.heapsnapshot')
 
-const logAdapterFile = getLogAdapter({ targetDir: logs })
+const logAdapterFile = getLogAdapterFile({ targetDir: logs })
 const registry = createRegistry()
 
 class DemoStep extends StepBase {

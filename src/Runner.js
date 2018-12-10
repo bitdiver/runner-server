@@ -5,7 +5,14 @@ import uuid from 'uuid'
 const uuidV4 = uuid.v4
 import pAll from 'p-all'
 
-import { getLogAdapter } from './LogAdapterFile'
+import {
+  getLogAdapterFile,
+  LEVEL_INFO,
+  LEVEL_WARNING,
+  LEVEL_ERROR,
+  LEVEL_FATAL,
+} from '@bitdiver/logadapter'
+
 import ProgressMeter from './ProgressMeter'
 
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
@@ -23,10 +30,6 @@ import {
   STATUS_WARNING,
   STATUS_ERROR,
   STATUS_FATAL,
-  LEVEL_INFO,
-  LEVEL_WARNING,
-  LEVEL_ERROR,
-  LEVEL_FATAL,
   generateLogs,
 } from '@bitdiver/model'
 
@@ -46,7 +49,7 @@ export default class Runner {
       ? opts.progressMeter
       : new ProgressMeter({ name: opts.name })
 
-    this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapter()
+    this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapterFile()
 
     // Defines how many steps could be executed in paralell
     this.maxParallelSteps = opts.maxParallelSteps ? opts.maxParallelSteps : 20
@@ -415,7 +418,9 @@ export default class Runner {
    */
   _prepare(suite) {
     this.id = uuidV4()
-    this.name = suite.name
+    if (suite.name !== undefined) {
+      this.name = suite.name
+    }
     this.description = suite.description
     this.steps = suite.steps
     this.testcases = suite.testcases

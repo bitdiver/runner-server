@@ -1,11 +1,11 @@
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner, getLogAdapter } from '../lib/index'
-import { getLogAdapterMemory } from '@bitdiver/model'
+import { Runner } from '../lib/index'
+import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
 import { StepDefinition } from '@bitdiver/definition'
 
 const logAdapter = getLogAdapterMemory()
-const logAdapterFile = getLogAdapter()
+const logAdapterFile = getLogAdapterFile()
 const TIMEOUT = 1000000
 const registry = createRegistry()
 
@@ -37,6 +37,8 @@ test.only(
       parallelExecution: options.parallelExecution,
     })
     await runner.run(suiteDefiniton)
+
+    expect().toEqual()
 
     done()
   },
@@ -422,7 +424,7 @@ test(
     })
 
     const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
-    debugger
+
     expect(
       logs['TC 1'].steps['Step single which runs after Error'].logs[2]
     ).toEqual({

@@ -1,7 +1,7 @@
 import StepNormal from './StepNormal'
-import { getLogAdapter } from '../../lib/index'
+import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
-const logAdapter = getLogAdapter()
+const logAdapter = getLogAdapterMemory()
 
 test.skip('Run normal without any errors', async done => {
   const step = new StepNormal()

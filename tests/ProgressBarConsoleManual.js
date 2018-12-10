@@ -1,6 +1,6 @@
 import { createSuite, createRegistry } from './helper/helper'
 import { Runner, ProgressBarConsole } from '../lib/index'
-import { getLogAdapterMemory } from '@bitdiver/model'
+import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
 const registry = createRegistry()
