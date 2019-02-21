@@ -9,7 +9,9 @@ const logAdapterFile = getLogAdapterFile()
 const TIMEOUT = 1000000
 const registry = createRegistry()
 
-test.only(
+logAdapter.level = 0
+
+test(
   'Run with file logAdapter',
   async done => {
     const options = {
@@ -313,7 +315,7 @@ test(
       value: 'ERROR Single', // The value for the action
     }
 
-    logAdapter.clear()
+    logAdapter.reset()
     const suiteDefiniton = createSuite()
 
     const data = {
@@ -380,7 +382,7 @@ test(
       value: 'ERROR Single', // The value for the action
     }
 
-    logAdapter.clear()
+    logAdapter.reset()
     const suiteDefiniton = createSuite()
 
     const data = {
@@ -484,8 +486,7 @@ async function runTestcaseAll(opts = {}) {
     value: 'unknown', // The value for the action
     ...opts,
   }
-
-  logAdapter.clear()
+  logAdapter.reset()
   const suiteDefiniton = createSuite()
 
   const data = {
@@ -501,8 +502,8 @@ async function runTestcaseAll(opts = {}) {
     logAdapter,
     parallelExecution: options.parallelExecution,
   })
-  await runner.run(suiteDefiniton)
 
+  await runner.run(suiteDefiniton)
   // no check the log status
   const res = checkTcStatus(options.extendedRes)
   return res
