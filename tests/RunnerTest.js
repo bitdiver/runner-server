@@ -502,7 +502,6 @@ async function runTestcaseAll(opts = {}) {
     logAdapter,
     parallelExecution: options.parallelExecution,
   })
-
   await runner.run(suiteDefiniton)
   // no check the log status
   const res = checkTcStatus(options.extendedRes)

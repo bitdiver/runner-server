@@ -55,38 +55,45 @@ export default class StepNormal extends StepBase {
   }
 
   async _work(method) {
-    // const tcName1 = this.environmentTestcase.name
-    // console.log(
-    //   `Execute Step '${this.name}' with method '${method}' in TC '${tcName1}'`
-    // )
+    let min = 5
+    let max = 100
+    let action = 'No Action' // This leads to NO log entry
+    let value = 'No Value'
+
     if (this.data[method] !== undefined) {
       // Ok there is an action defined for this method
-      const action = this.data[method].action
-      const value = this.data[method].value
+      if (this.data[method].action !== undefined) {
+        action = this.data[method].action
+      }
+      if (this.data[method].value !== undefined) {
+        value = this.data[method].value
+      }
 
-      if (action === 'logInfo') {
-        await this.logInfo(value)
-      } else if (action === 'logWarning') {
-        await this.logWarning(value)
-      } else if (action === 'logError') {
-        await this.logError(value)
-      } else if (action === 'logFatal') {
-        await this.logFatal(value)
-      } else if (action === 'exception') {
-        throw new Error(value)
+      if (this.data[method].min !== undefined) {
+        min = this.data[method].min
+      }
+      if (this.data[method].max !== undefined) {
+        max = this.data[method].max
       }
     }
+
+    if (action === 'exception') {
+      throw new Error(value)
+    }
+
     return new Promise(resolve => {
-      const min = 5
-      const max = 100
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
-        // const tcName = this.environmentTestcase.name
-        // console.log(
-        //   `Execute Step '${
-        //     this.name
-        //   }' with method '${method}' in TC '${tcName}'`
-        // )
+        if (action === 'logInfo') {
+          resolve(this.logInfo(value))
+        } else if (action === 'logWarning') {
+          resolve(this.logWarning(value))
+        } else if (action === 'logError') {
+          resolve(this.logError(value))
+        } else if (action === 'logFatal') {
+          resolve(this.logFatal(value))
+        }
+
         resolve(1)
       }, time)
     })

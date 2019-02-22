@@ -356,17 +356,17 @@ export default class Runner {
   _getMethodPromise(stepInstance, methods) {
     const asyncArray = []
 
-    methods.forEach(method => {
+    for (const method of methods) {
       asyncArray.push(() => {
         return stepInstance.logInfo(`Step ${method}`)
-        // return this._logStep(stepInstance, `Step ${method}`)
       })
+
       asyncArray.push(() => {
         return stepInstance[method]().catch(err => {
           return this.setStepFail(stepInstance, err)
         })
       })
-    })
+    }
 
     return asyncArray.reduce((prev, curr) => {
       return prev.then(curr)
