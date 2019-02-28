@@ -144,7 +144,9 @@ export default class Runner {
       //   break
       // }
 
-      this.progressMeter.startOverTestcase()
+      if (i > 0) {
+        this.progressMeter.startOverTestcase()
+      }
 
       const stepId = stepIds[i]
       const stepDefinition = this.steps[stepId]
@@ -157,7 +159,9 @@ export default class Runner {
       step.logAdapter = this
       step.environmentRun = this.environmentRun
 
-      this.progressMeter.incStep(stepDefinition.name)
+      if (i > 0) {
+        this.progressMeter.incStep(stepDefinition.name)
+      }
 
       if (
         step.type === STEP_TYPE_SINGLE ||

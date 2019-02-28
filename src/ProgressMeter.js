@@ -3,6 +3,12 @@ import assert from 'assert'
 /**
  * This class keeps the progress when running a suite
  * It is intended to be a base class for other ProgressBars
+ * If currentStep=0 or currentTestcase=0 This means that
+ * no step or test case is currently executing. This should
+ * not be used to update a display. First the step is increased. Then the
+ * testcase is set to '0', then the testcase is set again. But all of these actions
+ * trigger an update.
+ *
  */
 export default class ProgressMeter {
   constructor(opts = {}) {
@@ -81,7 +87,7 @@ export default class ProgressMeter {
   startOverTestcase() {
     this.currentTestcase = 0
     this.currentTestcaseName = ''
-    this.update()
+    // this.update()
   }
 
   /**
