@@ -10,7 +10,7 @@ import assert from 'assert'
  * trigger an update.
  *
  */
-export default class ProgressMeter {
+export default class ProgressMeterBatch {
   constructor(opts = {}) {
     this.name = opts.name || 'Unknown Suite'
 

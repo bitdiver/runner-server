@@ -1,13 +1,6 @@
-import ProgressBar from 'ts-progress'
+import ProgressMeterBatch from './ProgressMeter'
 
-import ProgressMeter from './ProgressMeter'
-
-export default class ProgressBarSimple extends ProgressMeter {
-  constructor(opts = {}) {
-    super(opts)
-    this.barStep = undefined
-  }
-
+export default class ProgressBarConsoleLogBatch extends ProgressMeterBatch {
   _printHeader() {
     console.log(`------------------------------------------------`) // eslint-disable-line no-console
     console.log(`| Execute suite:           ${this.name}`) // eslint-disable-line no-console
@@ -27,6 +20,8 @@ export default class ProgressBarSimple extends ProgressMeter {
     console.log(
       `| Testcase:                ${this.currentTestcase}/${this.testcaseCount}`
     )
+    // eslint-disable-next-line no-console
+    console.log(`| Failed:                  ${this.testcaseFailed}`)
     console.log(`| Last step:               ${this.lastStep}`) // eslint-disable-line no-console
     console.log(`| Last test case:          ${this.lastTestcase}`) // eslint-disable-line no-console
     console.log(`------------------------------------------------`) // eslint-disable-line no-console
@@ -39,16 +34,7 @@ export default class ProgressBarSimple extends ProgressMeter {
 
   init(opts) {
     super.init(opts)
-
     this._printHeader()
-
-    this.barStep = ProgressBar.create({
-      total: this.stepCount,
-      pattern:
-        'Step progress:  {bar} | {current}/{total} | Remaining: {remaining} | Elapsed: {elapsed} | Memory: {memory} ',
-      textColor: 'green',
-      updateFrequency: 100,
-    })
   }
 
   /**
@@ -58,6 +44,8 @@ export default class ProgressBarSimple extends ProgressMeter {
    */
   incStep(name) {
     super.incStep(name)
-    this.barStep.update()
+
+    // eslint-disable-next-line no-console
+    console.log(`${this.currentStep}/${this.stepCount} ${this.lastStep}`)
   }
 }

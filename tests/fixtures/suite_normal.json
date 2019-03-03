@@ -1,0 +1,147 @@
+{
+  "name": "suite name",
+  "tags": [],
+  "testcases": [
+    {
+      "name": "TC 1",
+      "description": "TC Desc 1",
+      "steps": [
+        "StepId_2",
+        "StepId_8",
+        "StepId_5",
+        "StepId_9",
+        "StepId_6",
+        "StepId_5",
+        "StepId_10",
+        "StepId_2"
+      ],
+      "data": [
+        "data TC 1 Step 1",
+        "data TC 1 Step 2",
+        "data TC 1 Step 3",
+        "data TC 1 Step 4",
+        "data TC 1 Step 5",
+        "data TC 1 Step 6",
+        "data TC 1 Step 7",
+        "data TC 1 Step 8"
+      ]
+    },
+    {
+      "name": "TC 2",
+      "description": "TC Desc 2",
+      "steps": [
+        "StepId_6",
+        "StepId_8",
+        "StepId_9",
+        "StepId_10",
+        "StepId_8",
+        "StepId_8",
+        "StepId_6",
+        "StepId_7",
+        "StepId_2"
+      ],
+      "data": [
+        "data TC 2 Step 9",
+        "data TC 2 Step 10",
+        "data TC 2 Step 11",
+        "data TC 2 Step 12",
+        "data TC 2 Step 13",
+        "data TC 2 Step 14",
+        "data TC 2 Step 15",
+        "data TC 2 Step 16",
+        "data TC 2 Step 17"
+      ]
+    },
+    {
+      "name": "TC 3",
+      "description": "TC Desc 3",
+      "steps": [
+        "StepId_3",
+        "StepId_8",
+        "StepId_1",
+        "StepId_3",
+        "StepId_8",
+        "StepId_1",
+        "StepId_8",
+        "StepId_4",
+        "StepId_1",
+        "StepId_2"
+      ],
+      "data": [
+        "data TC 3 Step 18",
+        "data TC 3 Step 19",
+        "data TC 3 Step 20",
+        "data TC 3 Step 21",
+        "data TC 3 Step 22",
+        "data TC 3 Step 23",
+        "data TC 3 Step 24",
+        "data TC 3 Step 25",
+        "data TC 3 Step 26",
+        "data TC 3 Step 27"
+      ]
+    }
+  ],
+  "steps": {
+    "StepId_1": {
+      "class": "normal",
+      "name": "Step 1",
+      "description": "Desc 1",
+      "id": "StepId_1"
+    },
+    "StepId_2": {
+      "class": "normal",
+      "name": "Step 2",
+      "description": "Desc 2",
+      "id": "StepId_2"
+    },
+    "StepId_3": {
+      "class": "normal",
+      "name": "Step 3",
+      "description": "Desc 3",
+      "id": "StepId_3"
+    },
+    "StepId_4": {
+      "class": "normal",
+      "name": "Step 4",
+      "description": "Desc 4",
+      "id": "StepId_4"
+    },
+    "StepId_5": {
+      "class": "normal",
+      "name": "Step 5",
+      "description": "Desc 5",
+      "id": "StepId_5"
+    },
+    "StepId_6": {
+      "class": "normal",
+      "name": "Step 6",
+      "description": "Desc 6",
+      "id": "StepId_6"
+    },
+    "StepId_7": {
+      "class": "normal",
+      "name": "Step 7",
+      "description": "Desc 7",
+      "id": "StepId_7"
+    },
+    "StepId_8": {
+      "class": "normal",
+      "name": "Step 8",
+      "description": "Desc 8",
+      "id": "StepId_8"
+    },
+    "StepId_9": {
+      "class": "normal",
+      "name": "Step 9",
+      "description": "Desc 9",
+      "id": "StepId_9"
+    },
+    "StepId_10": {
+      "class": "normal",
+      "name": "Step 10",
+      "description": "Desc 10",
+      "id": "StepId_10"
+    }
+  },
+  "executionMode": "normal"
+}

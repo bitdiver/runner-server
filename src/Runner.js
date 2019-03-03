@@ -13,7 +13,7 @@ import {
   LEVEL_FATAL,
 } from '@bitdiver/logadapter'
 
-import ProgressMeter from './ProgressMeter'
+import ProgressMeterBatch from './ProgressMeterBatch'
 
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
 
@@ -45,9 +45,13 @@ export default class Runner {
     // It will be injected into the run environment
     this.dataDir = opts.dataDir ? opts.dataDir : ''
 
-    this.progressMeter = opts.progressMeter
-      ? opts.progressMeter
-      : new ProgressMeter({ name: opts.name })
+    this.progressMeterBatch = opts.progressMeterBatch
+      ? opts.progressMeterBatch
+      : new ProgressMeterBatch({ name: opts.name })
+
+      this.progressMeterNormal = opts.progressMeterNormal
+        ? opts.progressMeterNormal
+        : new ProgressMeterNormal({ name: opts.name })
 
     this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapterFile()
 
@@ -99,8 +103,8 @@ export default class Runner {
 
       const stepCount = Object.keys(this.steps).length
       const testcaseCount = this.testcases.length
-      this.progressMeter.init({ testcaseCount, stepCount, name: suite.name })
-      this.progressMeter.clear()
+      this.progressMeterBatch.init({ testcaseCount, stepCount, name: suite.name })
+      this.progressMeterBatch.clear()
 
       if (suite.executionMode === EXECUTION_MODE_BATCH) {
         await this._doRunBatch(opts)
@@ -108,18 +112,66 @@ export default class Runner {
         await this._doRunNormal(opts)
       }
 
-      this.progressMeter.done()
+      this.progressMeterBatch.done()
     }
   }
 
-  async _doRunNormal() {
-    // TODO
-    // The testcases will be executed one after another
-    throw new Error(`The method '_doRunNormal' is not yet implemented`)
+  /**
+   * Executes a Suiten in normal mode
+   * Itearte the test cases and then the steps in each test case.
+   * @param opts {object} Options for the execution.
+   *        testmode=(true/false) Defines if the suite should be executed in testmode or not
+   */
+  async _doRunNormal(opts = {}) {
+    const testMode = opts.testMode ? opts.testMode : false
+    const testCaseCount = this.testcases.length
+
+    // create the count of all steps over all test cases
+    let stepCount = 0
+    for (let tcCounter = 0; tcCounter < testCaseCount; tcCounter++) {
+      stepCount += this.testcases[tcCounter].steps.length
+    }
+
+    await this._logStartRun({ testCaseCount, stepCount })
+
+    // TODO for this runMode we need a different kind of progress meter.
+
+    // iterate test test cases
+    for (let tcCounter = 0; tcCounter < testCaseCount; tcCounter++) {
+      const tc = this.testcases[tcCounter]
+      const stepCountTc = tc.steps.length // the count of steps in this test case
+
+      // iterate stepsn of this particular test case
+      for (let stepCounter = 0; stepCounter < stepCountTc; stepCounter++) {
+        const stepId = tc.steps[stepCounter]
+        const stepDefinition = this.steps[stepId]
+
+        const step = this.stepRegistry.getStep(stepDefinition.class)
+        step.countCurrent = stepCounter + 1
+        step.countAll = stepCountTc
+        step.testMode = testMode
+        step.logAdapter = this
+        step.environmentRun = this.environmentRun
+
+        const tcEnvId = this.environmentTestcaseIds[tcCounter]
+        const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+        step.environmentTestcase = tcEnv
+        step.data = tc.data[stepCounter]
+
+        if (!this._shouldStopRun() || tcEnv.running || step.runOnError) {
+          // OK the step should run
+          this._executeStepMethodOrdered([step], ['start'])
+          this._executeStepMethodOrdered([step], ['beforeRun', 'run'])
+          this._executeStepMethodOrdered([step], ['afterRun'])
+          this._executeStepMethodOrdered([step], ['end'])
+        }
+      }
+    }
   }
 
   /**
-   * Executes a Suite
+   * Executes a Suiten in batch mode
+   * Itearte the steps and then the test cases. Steps and test cases are a matrix
    * @param opts {object} Options for the execution.
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
@@ -145,7 +197,7 @@ export default class Runner {
       // }
 
       if (i > 0) {
-        this.progressMeter.startOverTestcase()
+        this.progressMeterBatch.startOverTestcase()
       }
 
       const stepId = stepIds[i]
@@ -160,7 +212,7 @@ export default class Runner {
       step.environmentRun = this.environmentRun
 
       if (i > 0) {
-        this.progressMeter.incStep(stepDefinition.name)
+        this.progressMeterBatch.incStep(stepDefinition.name)
       }
 
       if (
@@ -178,7 +230,7 @@ export default class Runner {
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
-          this.progressMeter.incTestcase(tcEnv.name)
+          this.progressMeterBatch.incTestcase(tcEnv.name)
 
           if (tcEnv.running || step.runOnError) {
             const data = tc.data[i]
@@ -211,7 +263,7 @@ export default class Runner {
             (data !== undefined && data !== null) ||
             step.needData === false
           ) {
-            this.progressMeter.incTestcase(tcEnv.name)
+            this.progressMeterBatch.incTestcase(tcEnv.name)
 
             // get the testcase environment for this step
             assert.ok(
@@ -243,7 +295,7 @@ export default class Runner {
             step.logAdapter = this
             step.environmentRun = this.environmentRun
           } else {
-            this.progressMeter.incTestcase('')
+            this.progressMeterBatch.incTestcase('')
           }
         }
       }
@@ -387,13 +439,13 @@ export default class Runner {
    */
   async _executeStepMethodOrdered(stepInstances, methods) {
     for (const stepInstance of stepInstances) {
-      for (const method of methods) {
-        await stepInstance.logInfo(`Step ${method}`)
-        try {
+      try {
+        for (const method of methods) {
+          await stepInstance.logInfo(`Step ${method}`)
           await stepInstance[method]()
-        } catch (err) {
-          await this.setStepFail(stepInstance, err)
         }
+      } catch (err) {
+        await this.setStepFail(stepInstance, err)
       }
     }
   }
@@ -572,7 +624,7 @@ export default class Runner {
       environmentTestcase.running
     ) {
       environmentTestcase.status = status
-      this.progressMeter.setFail()
+      this.progressMeterBatch.setFail()
       environmentTestcase.running = false
 
       promisses.push(

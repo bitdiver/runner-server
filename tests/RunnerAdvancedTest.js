@@ -166,6 +166,7 @@ test(
       parallelExecution: options.parallelExecution,
       progressMeter: new MyProgressMeter(),
     })
+
     await runner.run(suiteDefiniton)
 
     const fileName = 'runBatchResult.json'

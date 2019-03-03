@@ -1,4 +1,4 @@
-import ProgressMeter from './ProgressMeter'
+import ProgressMeterBatch from './ProgressMeterBatch'
 import chalk from 'chalk'
 
 const TEXT_LABEL = chalk.bold.black
@@ -7,7 +7,7 @@ const PROGRESS_BAR_CHARCTER = '#'
 const PROGRESS_BAR_CHARCTER_EMPTY = ' '
 const PROGRESS_BAR_CHARCTER_COLOR = chalk.bold.green.bgGreen
 
-export default class ProgressBarConsole extends ProgressMeter {
+export default class ProgressBarConsole2Batch extends ProgressMeterBatch {
   constructor(opts = {}) {
     super(opts)
 
