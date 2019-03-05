@@ -40,7 +40,6 @@ test(
     const expectedLogRaw = await readFile(path.join(FIXTURES, fileNameLog))
     const expectedLog = JSON.parse(expectedLogRaw)
 
-
     // the file is only written to have a new master if something is changed in the test
     await writeFile(
       path.join(VOLATILE, fileNameLog),

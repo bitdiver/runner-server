@@ -14,6 +14,7 @@ import {
 } from '@bitdiver/logadapter'
 
 import ProgressMeterBatch from './ProgressMeterBatch'
+import ProgressMeterNormal from './ProgressMeterNormal'
 
 import { EXECUTION_MODE_BATCH } from '@bitdiver/definition'
 
@@ -49,9 +50,9 @@ export default class Runner {
       ? opts.progressMeterBatch
       : new ProgressMeterBatch({ name: opts.name })
 
-      this.progressMeterNormal = opts.progressMeterNormal
-        ? opts.progressMeterNormal
-        : new ProgressMeterNormal({ name: opts.name })
+    this.progressMeterNormal = opts.progressMeterNormal
+      ? opts.progressMeterNormal
+      : new ProgressMeterNormal({ name: opts.name })
 
     this.logAdapter = opts.logAdapter ? opts.logAdapter : getLogAdapterFile()
 
@@ -103,7 +104,11 @@ export default class Runner {
 
       const stepCount = Object.keys(this.steps).length
       const testcaseCount = this.testcases.length
-      this.progressMeterBatch.init({ testcaseCount, stepCount, name: suite.name })
+      this.progressMeterBatch.init({
+        testcaseCount,
+        stepCount,
+        name: suite.name,
+      })
       this.progressMeterBatch.clear()
 
       if (suite.executionMode === EXECUTION_MODE_BATCH) {
@@ -134,8 +139,6 @@ export default class Runner {
 
     await this._logStartRun({ testCaseCount, stepCount })
 
-    // TODO for this runMode we need a different kind of progress meter.
-
     // iterate test test cases
     for (let tcCounter = 0; tcCounter < testCaseCount; tcCounter++) {
       const tc = this.testcases[tcCounter]
@@ -147,6 +150,9 @@ export default class Runner {
         const stepDefinition = this.steps[stepId]
 
         const step = this.stepRegistry.getStep(stepDefinition.class)
+        step.name = stepDefinition.name
+          ? stepDefinition.name
+          : stepDefinition.class
         step.countCurrent = stepCounter + 1
         step.countAll = stepCountTc
         step.testMode = testMode
@@ -160,10 +166,10 @@ export default class Runner {
 
         if (!this._shouldStopRun() || tcEnv.running || step.runOnError) {
           // OK the step should run
-          this._executeStepMethodOrdered([step], ['start'])
-          this._executeStepMethodOrdered([step], ['beforeRun', 'run'])
-          this._executeStepMethodOrdered([step], ['afterRun'])
-          this._executeStepMethodOrdered([step], ['end'])
+          await this._executeStepMethodOrdered([step], ['start'])
+          await this._executeStepMethodOrdered([step], ['beforeRun', 'run'])
+          await this._executeStepMethodOrdered([step], ['afterRun'])
+          await this._executeStepMethodOrdered([step], ['end'])
         }
       }
     }
@@ -205,6 +211,9 @@ export default class Runner {
 
       const steps = []
       let step = this.stepRegistry.getStep(stepDefinition.class)
+      step.name = stepDefinition.name
+        ? stepDefinition.name
+        : stepDefinition.class
       step.countCurrent = i + 1
       step.countAll = stepCount
       step.testMode = testMode
@@ -291,6 +300,9 @@ export default class Runner {
             }
             // create a new step instance for the next testcase
             step = this.stepRegistry.getStep(stepDefinition.class)
+            step.name = stepDefinition.name
+              ? stepDefinition.name
+              : stepDefinition.class
             step.testMode = testMode
             step.logAdapter = this
             step.environmentRun = this.environmentRun

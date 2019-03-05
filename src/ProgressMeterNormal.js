@@ -87,7 +87,6 @@ export default class ProgressMeterNormal {
     this.update()
   }
 
-
   /**
    * Increments the current step count. Will be called when starting
    * a new step.
