@@ -1,8 +1,8 @@
-import ProgressMeter from './ProgressMeterBatch'
+import ProgressMeterBatch from './ProgressMeterBatch'
 import assert from 'assert'
 import moment from 'moment'
 
-export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
+export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
   constructor(opts = {}) {
     super(opts)
     this.sequence = 0

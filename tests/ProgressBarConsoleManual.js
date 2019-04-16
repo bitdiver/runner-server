@@ -28,7 +28,7 @@ const runner = new Runner({
   stepRegistry: registry,
   logAdapter,
   parallelExecution: options.parallelExecution,
-  progressMeter: new ProgressBarConsole(),
+  progressMeterNormal: new ProgressBarConsole(),
 })
 
 runner

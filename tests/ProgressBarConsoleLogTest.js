@@ -50,7 +50,7 @@ test(
       stepRegistry: registry,
       logAdapter: logAdapterFile,
       parallelExecution: options.parallelExecution,
-      progressMeter: new ProgressBarConsoleLogBatch(),
+      progressMeterBatch: new ProgressBarConsoleLogBatch(),
     })
     await runner.run(suiteDefiniton)
 

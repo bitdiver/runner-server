@@ -6,10 +6,9 @@ import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 const logAdapter = getLogAdapterMemory()
 const logAdapterFile = getLogAdapterFile()
 const TIMEOUT = 1000000
+const registry = createRegistry()
 
 logAdapter.level = 0
-
-const registry = createRegistry()
 
 test(
   'Run with file logAdapter',
@@ -18,7 +17,7 @@ test(
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
       posStep: 0, // The step where to store the action
-      extendedRes: false, // should create extended log result?
+      extendedRes: true, // should create extended log result?
       action: 'logInfo', // The action of the testcase data
       value: 'unknown', // The value for the action
     }
@@ -50,7 +49,7 @@ test(
       stepRegistry: registry,
       logAdapter: logAdapterFile,
       parallelExecution: options.parallelExecution,
-      progressMeter: new ProgressBarConsoleLogBatchJson(),
+      progressMeterBatch: new ProgressBarConsoleLogBatchJson(),
     })
     await runner.run(suiteDefiniton)
 
