@@ -1,4 +1,4 @@
-import ProgressMeter from './ProgressMeter'
+import ProgressMeter from './ProgressMeterBatch'
 import assert from 'assert'
 import moment from 'moment'
 
