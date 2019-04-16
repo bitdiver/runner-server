@@ -5,7 +5,7 @@ import moment from 'moment'
 export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
   constructor(opts = {}) {
     super(opts)
-    this.counter = 0
+    this.sequence = 0
     this.timeZone = opts.timeZone ? opts.timeZone : moment().utcOffset()
     this.timeFormat = opts.timeFormat
       ? opts.timeFormat
@@ -13,50 +13,24 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
   }
 
   _printHeader() {
-    /*
-    console.log(`------------------------------------------------`) // eslint-disable-line no-console
-    console.log(`| Execute suite:           ${this.name}`) // eslint-disable-line no-console
-    console.log(`| Total step count:        ${this.stepCount}`) // eslint-disable-line no-console
-    console.log(`| Total test case count:   ${this.testcaseCount}`) // eslint-disable-line no-console
-    console.log(`------------------------------------------------`) // eslint-disable-line no-console
-    */
-    const data = new Map()
-    data.set('Name', `Execute suite: ${this.name}`)
-    data.set('Total step count', `Total step count: ${this.stepCount}`)
-    data.set('v', `c: ${this.testcaseCount}`)
+    const data = {
+      'Execute suite': `${this.name}`,
+      'Total step count': `${this.stepCount}`,
+      'Total test case count': `${this.testcaseCount}`,
+    }
 
     this.log(data)
   }
 
   _printFooter() {
-    /*
-    console.log(`------------------------------------------------`) // eslint-disable-line no-console
-    console.log(`| Result for suite:        ${this.name}`) // eslint-disable-line no-console
-    // eslint-disable-next-line no-console
-    console.log(
-      `| Steps:                   ${this.currentStep}/${this.stepCount}`
-    )
-    // eslint-disable-next-line no-console
-    console.log(
-      `| Testcase:                ${this.currentTestcase}/${this.testcaseCount}`
-    )
-    // eslint-disable-next-line no-console
-    console.log(`| Failed:                  ${this.testcaseFailed}`)
-    console.log(`| Last step:               ${this.lastStep}`) // eslint-disable-line no-console
-    console.log(`| Last test case:          ${this.lastTestcase}`) // eslint-disable-line no-console
-    console.log(`------------------------------------------------`) // eslint-disable-line no-console
-    */
-
-    const data = new Map()
-    data.set('Name', `Result for suite: ${this.name}`)
-    data.set('Steps', `Steps: ${this.currentStep}/${this.stepCount}`)
-    data.set(
-      'Testcase',
-      `Testcase: ${this.currentTestcase}/${this.testcaseCount}`
-    )
-    data.set('Failed', `Failed: ${this.testcaseFailed}`)
-    data.set('Last step', `Last step: ${this.lastStep}`)
-    data.set('Last test case', `Last test case: ${this.lastTestcase}`)
+    const data = {
+      'Result for suite': `${this.name}`,
+      Steps: `${this.currentStep}/${this.stepCount}`,
+      Testcase: `${this.currentTestcase}/${this.testcaseCount}`,
+      Failed: `${this.testcaseFailed}`,
+      'Last step': `${this.lastStep}`,
+      'Last test case': `${this.lastTestcase}`,
+    }
 
     this.log(data)
   }
@@ -80,7 +54,6 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
     super.incStep(name)
 
     // eslint-disable-next-line no-console
-    // console.log(`${this.currentStep}/${this.stepCount} ${this.lastStep}`)
     const data = `${this.currentStep}/${this.stepCount} ${this.lastStep}`
     this.log(data)
   }
@@ -117,7 +90,9 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
     assert.ok(message, `The 'logMessage' parameter was not given`)
 
     const logMessage = {
-      meta: {},
+      meta: {
+        consoleTyp: 'ProgressBarConsole',
+      },
       data: {
         message: '',
       },
@@ -149,7 +124,7 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
       .utcOffset(this.timeZone)
       .format(this.timeFormat)
 
-    meta.counter = this.counter++
+    meta.sequence = this.sequence++
 
     const dataString = JSON.stringify(data)
     const dat = JSON.stringify({ meta, data: dataString })
