@@ -1,4 +1,4 @@
-import ProgressMeterBatch from './ProgressMeter'
+import ProgressMeterBatch from './ProgressMeterBatch'
 
 export default class ProgressBarConsoleLogBatch extends ProgressMeterBatch {
   _printHeader() {
