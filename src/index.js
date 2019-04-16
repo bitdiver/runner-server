@@ -1,13 +1,14 @@
 import Runner from './Runner'
-import ProgressMeter from './ProgressMeter'
-import ProgressBarConsole from './ProgressBarConsole2'
-import ProgressBarConsoleLog from './ProgressBarConsoleLog'
-import ProgressBarConsoleLogJson from './ProgressBarConsoleLogJson'
+
+import ProgressMeterBatch from './ProgressMeterBatch'
+import ProgressBarConsoleBatch from './ProgressBarConsole2Batch'
+import ProgressBarConsoleLogBatch from './ProgressBarConsoleLogBatch'
+import ProgressBarConsoleLogBatchJson from './ProgressBarConsoleLogBatchJson'
 
 export {
   Runner,
-  ProgressMeter,
-  ProgressBarConsole,
-  ProgressBarConsoleLog,
-  ProgressBarConsoleLogJson,
+  ProgressMeterBatch,
+  ProgressBarConsoleBatch,
+  ProgressBarConsoleLogBatch,
+  ProgressBarConsoleLogBatchJson,
 }

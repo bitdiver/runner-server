@@ -6,17 +6,15 @@
 import fs from 'fs'
 import path from 'path'
 import util from 'util'
-import rimraf from 'rimraf'
 import mkdirp from 'mkdirp'
 
 import { STEP_TYPE_SINGLE, StepBase, StepRegistry } from '@bitdiver/model'
 
 import { createSuite } from './helper/helper'
 import { Runner } from '../lib/index'
-import { ProgressMeter } from '../lib/index'
+import { ProgressMeterBatch } from '../lib/index'
 import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
-const rm = util.promisify(rimraf)
 const md = util.promisify(mkdirp)
 const writeFile = util.promisify(fs.writeFile)
 const readFile = util.promisify(fs.readFile)
@@ -32,7 +30,7 @@ logAdapter.level = 0
 
 let RESULT = []
 
-class MyProgressMeter extends ProgressMeter {
+class MyProgressMeter extends ProgressMeterBatch {
   update() {
     RESULT.push(`S:${this.currentStep} TC:${this.currentTestcase}`)
   }
@@ -75,18 +73,7 @@ class MyStepNormal extends StepBase {
   }
 
   async _work(method) {
-    // const min = 5
-    // const max = 50
-
     RESULT.push(`${method} ${this.name} ${this.environmentTestcase.name}`)
-
-    // return new Promise(resolve => {
-    //   // const time = Math.floor(Math.random() * (max - min)) + min
-    //   const time = 5
-    //   setTimeout(() => {
-    //     resolve(1)
-    //   }, time)
-    // })
   }
 }
 
@@ -99,19 +86,6 @@ class MyStepSingle extends MyStepNormal {
     RESULT.push(
       `SINGLE ${method} ${this.name} ${this.environmentTestcase.name}`
     )
-
-    // return new Promise(resolve => {
-    //   // const min = 5
-    //   // const max = 30
-    //   // const time = Math.floor(Math.random() * (max - min)) + min
-    //   const time = 5
-    //   setTimeout(() => {
-    //     // console.log(
-    //     //   `Execute Single Step '${this.name}' with method '${method}''`
-    //     // )
-    //     resolve(1)
-    //   }, time)
-    // })
   }
 }
 
@@ -120,7 +94,6 @@ registry.registerStep('normal', MyStepNormal)
 registry.registerStep('single', MyStepSingle)
 
 beforeAll(async () => {
-  await rm(VOLATILE)
   await md(VOLATILE)
 })
 
@@ -166,6 +139,7 @@ test(
       parallelExecution: options.parallelExecution,
       progressMeter: new MyProgressMeter(),
     })
+    
     await runner.run(suiteDefiniton)
 
     const fileName = 'runBatchResult.json'

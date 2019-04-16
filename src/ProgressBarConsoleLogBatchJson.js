@@ -2,7 +2,7 @@ import ProgressMeter from './ProgressMeter'
 import assert from 'assert'
 import moment from 'moment'
 
-export default class ProgressBarConsoleLog extends ProgressMeter {
+export default class ProgressBarConsoleLogBatchJson extends ProgressMeter {
   constructor(opts = {}) {
     super(opts)
     this.counter = 0

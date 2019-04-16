@@ -1,6 +1,6 @@
 import { createSuite, createRegistry } from './helper/helper'
 import { Runner } from '../lib/index'
-import { ProgressBarConsoleLogJson } from '../lib/index'
+import { ProgressBarConsoleLogBatchJson } from '../lib/index'
 import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
@@ -50,7 +50,7 @@ test(
       stepRegistry: registry,
       logAdapter: logAdapterFile,
       parallelExecution: options.parallelExecution,
-      progressMeter: new ProgressBarConsoleLogJson(),
+      progressMeter: new ProgressBarConsoleLogBatchJson(),
     })
     await runner.run(suiteDefiniton)
 

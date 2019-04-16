@@ -1,16 +1,11 @@
 import assert from 'assert'
 
 /**
- * This class keeps the progress when running a suite
- * It is intended to be a base class for other ProgressBars
- * If currentStep=0 or currentTestcase=0 This means that
- * no step or test case is currently executing. This should
- * not be used to update a display. First the step is increased. Then the
- * testcase is set to '0', then the testcase is set again. But all of these actions
- * trigger an update.
+ * This progress meter is for normal execution. One test case after an other.
+ * For batch execution an other ProgressMeter is neeed
  *
  */
-export default class ProgressMeter {
+export default class ProgressMeterNormal {
   constructor(opts = {}) {
     this.name = opts.name || 'Unknown Suite'
 
@@ -28,6 +23,9 @@ export default class ProgressMeter {
 
     // The current Step
     this.currentStep = 0
+
+    // the count of steps in the current test case
+    this.testcaseStepCount = 0
 
     this.lastTestcase = ''
     this.lastStep = ''
@@ -53,16 +51,20 @@ export default class ProgressMeter {
    * resets all the counter
    */
   clear() {
+    this.testcaseCount = 0
+    this.stepCount = 0
     this.testcaseFailed = 0
     this.currentTestcase = 0
     this.currentStep = 0
-    this.currentTestcaseName = ''
-    this.currentStepName = ''
+    this.testcaseStepCount = 0
+    this.lastTestcase = ''
+    this.lastStep = ''
     this.update()
   }
 
   /**
-   * increases the number of failed test cases
+   * increases the number of failed test cases.
+   * Must only be called once per test case
    */
   setFail() {
     this.testcaseFailed++
@@ -73,21 +75,16 @@ export default class ProgressMeter {
    * Increments the current testcase count. Will be called when starting
    * a new test case in a step.
    * @param name {string} The name of the current testcase
+   * @param stepCount {number} The number of steps in this test case
    */
-  incTestcase(name) {
+  incTestcase(name, stepCount) {
+    assert.ok(name, `no 'name' property given`)
+    assert.ok(stepCount, `no 'stepCount' property given`)
     this.lastTestcase = name
     this.currentTestcase++
     this.currentTestcaseName = name
+    this.testcaseStepCount = stepCount
     this.update()
-  }
-
-  /**
-   * When a step is finisched the test case counting starts again
-   */
-  startOverTestcase() {
-    this.currentTestcase = 0
-    this.currentTestcaseName = ''
-    // this.update()
   }
 
   /**
