@@ -63,7 +63,7 @@
 	"dependencies": {
 		"@babel/runtime": "7.4.3",
 		"@bitdiver/definition": "2.0.0",
-		"@bitdiver/logadapter": "1.4.1",
+		"@bitdiver/logadapter": "1.4.2",
 		"@bitdiver/model": "2.0.0",
 		"mkdirp": "0.5.1",
 		"moment": "2.24.0",
