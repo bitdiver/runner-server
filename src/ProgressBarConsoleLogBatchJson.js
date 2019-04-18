@@ -62,27 +62,14 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
    * @param data {object} The object with the data to be logged and the needed meta data
    *     const logMessage = {
    *       meta:{
-   *         run:{
-   *           start: <time>,
-   *           id: 'id' // RunEnvironment ID
-   *           name: 'suite name'
-   *         },
-   *         tc:{
-   *           tcCountCurrent: tcCountCurrent,
-   *           tcCountAll: tcCountAll,
-   *           id: 'id', // TestcaseEnvironment ID
-   *           name: 'great tc name'
-   *         },
-   *         step:{
-   *           stepCountCurrent: stepCountCurrent,
-   *           stepCountAll: stepCountAll,
-   *           id: 'id', // testcase instance
-   *           name: 'great step name'
-   *           typ: ('singel'| ''|)
-   *         }
+   *         typ: 'ProgressBarConsole',
+   *         logTime: 1555574996384,
+   *         logTimeString: '2019-04-18_10:09:56_+0200',
+   *         sequence: '0',
    *       }
-   *       data:{},
-   *       logLevel: LEVEL_INFO
+   *       data:{
+   *          message: ''
+   *       },
    *     }
    * @return promise {promise} A promise until the log message is written
    */
@@ -91,7 +78,7 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
 
     const logMessage = {
       meta: {
-        consoleTyp: 'ProgressBarConsole',
+        typ: 'ProgressBarConsole',
       },
       data: {
         message: '',
@@ -126,9 +113,7 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
 
     meta.sequence = this.sequence++
 
-    const dataString = JSON.stringify(data)
-    const dat = JSON.stringify({ meta, data: dataString })
-    const outputJson = JSON.stringify(dat, null, 2)
+    const outputJson = JSON.stringify({ meta, data })
     // eslint-disable-next-line no-console
     console.log(outputJson)
   }
