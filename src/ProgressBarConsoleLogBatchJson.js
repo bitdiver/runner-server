@@ -62,7 +62,7 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
    * @param data {object} The object with the data to be logged and the needed meta data
    *     const logMessage = {
    *       meta:{
-   *         typ: 'ProgressBarConsole',
+   *         logTyp: 'ProgressBarConsole',
    *         logTime: 1555574996384,
    *         logTimeString: '2019-04-18_10:09:56_+0200',
    *         sequence: '0',
@@ -78,7 +78,7 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
 
     const logMessage = {
       meta: {
-        typ: 'ProgressBarConsole',
+        logTyp: 'ProgressBarConsole',
       },
       data: {
         message: '',
