@@ -57,7 +57,7 @@
 		"jest-environment-node-debug": "2.0.0",
 		"prettier": "1.17.0",
 		"regenerator-runtime": "0.13.2",
-		"rimraf": "2.6.3",
+		"rimraf": "2.7.0",
 		"semantic-release": "15.13.3"
 	},
 	"dependencies": {
