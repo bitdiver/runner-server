@@ -65,7 +65,7 @@
 		"@bitdiver/definition": "2.0.0",
 		"@bitdiver/logadapter": "1.4.2",
 		"@bitdiver/model": "2.0.0",
-		"mkdirp": "0.5.1",
+		"mkdirp": "1.0.0",
 		"moment": "2.24.0",
 		"p-all": "2.1.0",
 		"sprintf-js": "1.1.2",
