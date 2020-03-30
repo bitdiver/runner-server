@@ -189,7 +189,7 @@ export default class Runner {
 
     // To get the step ids we need the testcase with the longest array of step ids
     let stepIds = []
-    this.testcases.forEach(tc => {
+    this.testcases.forEach((tc) => {
       if (tc.steps.length > stepIds.length) {
         stepIds = tc.steps
       }
@@ -288,7 +288,7 @@ export default class Runner {
             // only execute steps for testcases which not have failed
             if (
               (tcEnv.status < STATUS_ERROR && tcEnv.running) ||
-              step.runOnError
+              (step.runOnError && tcEnv.status < STATUS_FATAL)
             ) {
               step.countCurrent = i + 1
               step.countAll = stepCount
@@ -430,7 +430,7 @@ export default class Runner {
       })
 
       asyncArray.push(() => {
-        return stepInstance[method]().catch(err => {
+        return stepInstance[method]().catch((err) => {
           return this.setStepFail(stepInstance, err)
         })
       })
@@ -512,7 +512,7 @@ export default class Runner {
     const tcCountAll = suite.testcases.length
     let tcCountCurrent = 1
     // test case environments
-    suite.testcases.forEach(tcDef => {
+    suite.testcases.forEach((tcDef) => {
       const envTc = new EnvironmentTestcase()
       this.environmentTestcaseIds.push(envTc.id)
       this.environmentTestcaseMap.set(envTc.id, envTc)

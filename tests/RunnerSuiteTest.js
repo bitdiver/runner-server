@@ -3,7 +3,7 @@ import util from 'util'
 import path from 'path'
 
 import { createRegistry } from './helper/helper'
-import { Runner } from '../lib/index'
+import { Runner } from '../src/index'
 import { getLogAdapterMemory } from '@bitdiver/logadapter'
 import { loadSuite } from '@bitdiver/definition'
 
@@ -19,7 +19,7 @@ const readFile = util.promisify(fs.readFile)
 
 test(
   'Run with file logAdapter',
-  async done => {
+  async (done) => {
     const fileNameSuite = 'suite_normal.json'
     const fileNameLog = 'suite_normal_log.json'
 

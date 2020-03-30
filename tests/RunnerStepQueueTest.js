@@ -1,5 +1,5 @@
 import { createRegistry } from './helper/helper'
-import { Runner } from '../lib/index'
+import { Runner } from '../src/index'
 import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 import StepTestQueue from './helper/StepTestQueue'
@@ -16,7 +16,7 @@ const runner = new Runner({
 
 test(
   'Test that the steps are executed at the same time',
-  async done => {
+  async (done) => {
     const methods = ['beforeRun', 'run', 'afterRun']
     const stepInstances = createSteps(5)
 

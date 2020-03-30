@@ -1,5 +1,5 @@
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner, ProgressBarConsole } from '../lib/index'
+import { Runner, ProgressBarConsole } from '../src/index'
 import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
@@ -36,6 +36,6 @@ runner
   .then(() => {
     console.log('\n\nFINISHED') // eslint-disable-line no-console
   })
-  .catch(err => {
+  .catch((err) => {
     console.log('ERROR: ', err) // eslint-disable-line no-console
   })

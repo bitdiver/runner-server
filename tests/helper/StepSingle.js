@@ -11,7 +11,7 @@ export default class StepSingle extends StepNormal {
     this.type = STEP_TYPE_SINGLE
   }
   _work(method) {
-    this.data.forEach(dat => {
+    this.data.forEach((dat) => {
       if (dat[method] !== undefined) {
         // Ok there is an action defined for this method
         const action = dat[method].action
@@ -30,7 +30,7 @@ export default class StepSingle extends StepNormal {
         }
       }
     })
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const min = 5
       const max = 100
       const time = Math.floor(Math.random() * (max - min)) + min

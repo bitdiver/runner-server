@@ -117,9 +117,7 @@ export default class ProgressBarConsole2Batch extends ProgressMeterBatch {
     )
     // eslint-disable-next-line no-console
     process.stdout.write(
-      `| Testcase:                ${this.currentTestcase}/${
-        this.testcaseCount
-      }\n`
+      `| Testcase:                ${this.currentTestcase}/${this.testcaseCount}\n`
     )
     process.stdout.write(`| Last step:               ${this.lastStep}\n`) // eslint-disable-line no-console
     process.stdout.write(`| Last test case:          ${this.lastTestcase}\n`) // eslint-disable-line no-console

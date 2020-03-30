@@ -2,7 +2,7 @@ import { StepBase } from '@bitdiver/model'
 import { getLogAdapterFile } from '@bitdiver/logadapter'
 
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner } from '../lib/index'
+import { Runner } from '../src/index'
 
 import heapdump from 'heapdump'
 import path from 'path'

@@ -11,11 +11,10 @@ import mkdirp from 'mkdirp'
 import { STEP_TYPE_SINGLE, StepBase, StepRegistry } from '@bitdiver/model'
 
 import { createSuite } from './helper/helper'
-import { Runner } from '../lib/index'
-import { ProgressMeterBatch } from '../lib/index'
+import { Runner } from '../src/index'
+import { ProgressMeterBatch } from '../src/index'
 import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
-const md = util.promisify(mkdirp)
 const writeFile = util.promisify(fs.writeFile)
 const readFile = util.promisify(fs.readFile)
 
@@ -94,12 +93,12 @@ registry.registerStep('normal', MyStepNormal)
 registry.registerStep('single', MyStepSingle)
 
 beforeAll(async () => {
-  await md(VOLATILE)
+  await mkdirp(VOLATILE)
 })
 
 test(
   'Run with file logAdapter',
-  async done => {
+  async (done) => {
     RESULT = []
     const options = {
       parallelExecution: true,

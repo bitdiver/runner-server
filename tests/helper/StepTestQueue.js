@@ -39,7 +39,7 @@ export default class StepTestQueue {
    * This method will be called just before the run method
    */
   async run() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // const min = 5
       // const max = 100
       // const time = Math.floor(Math.random() * (max - min)) + min

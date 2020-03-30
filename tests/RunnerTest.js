@@ -1,5 +1,5 @@
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner } from '../lib/index'
+import { Runner } from '../src/index'
 import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
 import { StepDefinition } from '@bitdiver/definition'
@@ -13,7 +13,7 @@ logAdapter.level = 0
 
 test(
   'Run with file logAdapter',
-  async done => {
+  async (done) => {
     const options = {
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
@@ -49,7 +49,7 @@ test(
 
 test(
   'Run normal without any errors (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseNoErrors({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
@@ -63,7 +63,7 @@ test(
 
 test(
   'Run normal without any errors (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseNoErrors({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
@@ -77,7 +77,7 @@ test(
 
 test(
   'Run test case with status warning (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
@@ -91,7 +91,7 @@ test(
 
 test(
   'Run test case with status warning (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
@@ -105,7 +105,7 @@ test(
 
 test(
   'Run test case with status error (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusError({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
@@ -119,7 +119,7 @@ test(
 
 test(
   'Run test case with status error (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusError({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
@@ -133,7 +133,7 @@ test(
 
 test(
   'Run test case with exception (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: true,
       extendedRes: true,
@@ -161,7 +161,7 @@ test(
 )
 test(
   'Run test case with exception (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: false,
       extendedRes: true,
@@ -190,7 +190,7 @@ test(
 
 test(
   'Run test case with status fatal (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -213,7 +213,7 @@ test(
 
 test(
   'Run test case with status fatal (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -235,7 +235,7 @@ test(
 
 test(
   'Run test case with status error on single step (Parallel Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseAll({
       parallelExecution: true,
       extendedRes: true,
@@ -271,7 +271,7 @@ test(
 
 test(
   'Run test case with status error on single step (Linear Execution)',
-  async done => {
+  async (done) => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -305,7 +305,7 @@ test(
 
 test(
   'Run test case with step runOnError=true (Linear Execution)',
-  async done => {
+  async (done) => {
     const options = {
       parallelExecution: false,
       extendedRes: true,
@@ -372,7 +372,7 @@ test(
 
 test(
   'Run test case with step singleRunOnError=true (Linear Execution)',
-  async done => {
+  async (done) => {
     const options = {
       parallelExecution: false,
       extendedRes: true,
@@ -518,7 +518,7 @@ function checkTcStatus(extended = false) {
 
   const res = {}
   const tcNames = Object.keys(logAdapter.logs[runIds[0]].testcases)
-  tcNames.forEach(tcName => {
+  tcNames.forEach((tcName) => {
     // get the test case log part
     const tcLog = logAdapter.logs[runIds[0]].testcases[tcName]
 

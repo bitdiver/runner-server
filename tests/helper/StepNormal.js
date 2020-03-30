@@ -81,7 +81,7 @@ export default class StepNormal extends StepBase {
       throw new Error(value)
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
         if (action === 'logInfo') {

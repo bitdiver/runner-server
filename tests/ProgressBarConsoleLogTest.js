@@ -1,6 +1,6 @@
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner } from '../lib/index'
-import { ProgressBarConsoleLogBatch } from '../lib/index'
+import { Runner } from '../src/index'
+import { ProgressBarConsoleLogBatch } from '../src/index'
 import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
@@ -13,7 +13,7 @@ const registry = createRegistry()
 
 test(
   'Run with file logAdapter',
-  async done => {
+  async (done) => {
     const options = {
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
