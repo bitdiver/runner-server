@@ -1,8 +1,7 @@
 'use strict'
 
 import assert from 'assert'
-import uuid from 'uuid'
-const uuidV4 = uuid.v4
+import { v4 as uuidv4 } from 'uuid'
 import pAll from 'p-all'
 
 import {
@@ -485,7 +484,7 @@ export default class Runner {
    * @param suite {object} The suite definition to be executed
    */
   _prepare(suite) {
-    this.id = uuidV4()
+    this.id = uuidv4()
     if (suite.name !== undefined) {
       this.name = suite.name
     }
