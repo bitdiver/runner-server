@@ -55,7 +55,7 @@
 		"jest": "25.2.4",
 		"jest-cli": "25.2.4",
 		"jest-environment-node-debug": "2.0.0",
-		"mkdirp": "1.0.3",
+		"mkdirp": "1.0.4",
 		"prettier": "2.0.2",
 		"regenerator-runtime": "0.13.5",
 		"rimraf": "3.0.2",
