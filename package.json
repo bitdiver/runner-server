@@ -62,7 +62,7 @@
 		"semantic-release": "17.0.4"
 	},
 	"dependencies": {
-		"@babel/runtime": "7.9.2",
+		"@babel/runtime": "7.9.6",
 		"@bitdiver/definition": "2.0.1",
 		"@bitdiver/logadapter": "1.4.3",
 		"@bitdiver/model": "2.0.1",
