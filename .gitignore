@@ -4,5 +4,7 @@ coverage
 jsdoc
 npm-debug.log
 yarn.lock
-yarn-error.log
+tests/volatile
+package-lock.json
+.DS_Store
 log
