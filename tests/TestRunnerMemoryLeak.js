@@ -39,6 +39,7 @@ registry.registerStep('normal', DemoStep)
 
 async function gumbo() {
   heapdump.writeSnapshot(fileNameHeapDump1, (err, fileName) => {
+    // eslint-disable-next-line no-console
     console.log('dump written to', fileName)
   })
 
@@ -72,10 +73,12 @@ async function gumbo() {
   await runner.run(suiteDefiniton)
 
   heapdump.writeSnapshot(fileNameHeapDump2, (err, fileName) => {
+    // eslint-disable-next-line no-console
     console.log('dump written to', fileName)
   })
 }
 
 gumbo().then(() => {
+  // eslint-disable-next-line no-console
   console.log('Fertig')
 })

@@ -17,7 +17,7 @@ export default class ProgressBarConsole2Batch extends ProgressMeterBatch {
     this.lastBarLengthTable = 0
     this.lastBarLengthTestcase = 0
 
-    this.rows = { '1': 0, '2': 0, '3': 0 }
+    this.rows = { 1: 0, 2: 0, 3: 0 }
   }
 
   /**
