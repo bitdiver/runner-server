@@ -63,7 +63,7 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "7.12.5",
-		"@bitdiver/definition": "2.0.3",
+		"@bitdiver/definition": "2.0.4",
 		"@bitdiver/logadapter": "1.4.4",
 		"@bitdiver/model": "2.0.4",
 		"moment": "2.29.1",
