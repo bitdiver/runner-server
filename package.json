@@ -65,7 +65,7 @@
 		"@babel/runtime": "7.12.5",
 		"@bitdiver/definition": "2.0.3",
 		"@bitdiver/logadapter": "1.4.4",
-		"@bitdiver/model": "2.0.3",
+		"@bitdiver/model": "2.0.4",
 		"moment": "2.29.1",
 		"p-all": "3.0.0",
 		"sprintf-js": "1.1.2",
