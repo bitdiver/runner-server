@@ -49,7 +49,7 @@
 		"babel-eslint": "10.1.0",
 		"babel-jest": "26.6.3",
 		"cz-conventional-changelog": "3.3.0",
-		"eslint": "7.14.0",
+		"eslint": "7.15.0",
 		"eslint-config-prettier": "7.0.0",
 		"eslint-plugin-babel": "5.3.1",
 		"jest": "26.6.3",
@@ -64,7 +64,7 @@
 	"dependencies": {
 		"@babel/runtime": "7.12.5",
 		"@bitdiver/definition": "2.0.4",
-		"@bitdiver/logadapter": "1.4.4",
+		"@bitdiver/logadapter": "1.4.5",
 		"@bitdiver/model": "2.0.4",
 		"moment": "2.29.1",
 		"p-all": "3.0.0",
