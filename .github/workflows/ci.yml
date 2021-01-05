@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 14.15.3
+          - 14.15.4
     steps:
       - uses: actions/checkout@v2
       - name: Cache node modules
@@ -22,14 +22,14 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: 'Build / Test Node ${{ matrix.node-version }}'
+      - name: Build / Test Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: '${{ matrix.node-version }}'
+          node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: npm test
       - run: npx semantic-release
         env:
           CI: 'true'
-          NPM_TOKEN: '${{ secrets.NPM_TOKEN }}'
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
