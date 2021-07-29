@@ -19,7 +19,7 @@ const readFile = util.promisify(fs.readFile)
 
 test(
   'Run with file logAdapter',
-  async (done) => {
+  async () => {
     const fileNameSuite = 'suite_normal.json'
     const fileNameLog = 'suite_normal_log.json'
 
@@ -59,8 +59,6 @@ test(
     ])
 
     expect(tcLog).toEqual(expectedLog)
-
-    done()
   },
   TIMEOUT
 )

@@ -12,7 +12,7 @@ logAdapter.level = 0
 
 test(
   'Run with file logAdapter',
-  async (done) => {
+  async () => {
     const options = {
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
@@ -52,8 +52,6 @@ test(
       progressMeterBatch: new ProgressBarConsoleLogBatchJson(),
     })
     await runner.run(suiteDefiniton)
-
-    done()
   },
   TIMEOUT
 )

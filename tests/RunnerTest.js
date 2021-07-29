@@ -13,7 +13,7 @@ logAdapter.level = 0
 
 test(
   'Run with file logAdapter',
-  async (done) => {
+  async () => {
     const options = {
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
@@ -41,99 +41,91 @@ test(
     await runner.run(suiteDefiniton)
 
     expect().toEqual()
-
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run normal without any errors (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseNoErrors({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 1,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run normal without any errors (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseNoErrors({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 1,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status warning (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 3,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status warning (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 3,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status error (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusError({ parallelExecution: true })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 4,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status error (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusError({ parallelExecution: false })
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 4,
       'TC 3': 1,
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with exception (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: true,
       extendedRes: true,
@@ -155,13 +147,12 @@ test(
         stepCount: 5,
       },
     })
-    done()
   },
   TIMEOUT
 )
 test(
   'Run test case with exception (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: false,
       extendedRes: true,
@@ -183,14 +174,13 @@ test(
         stepCount: 5,
       },
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status fatal (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -206,14 +196,13 @@ test(
       'TC 2': { logCount: 2, status: 5, stepCount: 1 },
       'TC 3': { logCount: 1, status: 2, stepCount: 4 },
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status fatal (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -228,14 +217,13 @@ test(
       'TC 2': { logCount: 2, status: 5, stepCount: 1 },
       'TC 3': { logCount: 1, status: 2, stepCount: 4 },
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status error on single step (Parallel Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseAll({
       parallelExecution: true,
       extendedRes: true,
@@ -264,14 +252,13 @@ test(
         stepCount: 2,
       },
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with status error on single step (Linear Execution)',
-  async (done) => {
+  async () => {
     const res = await runTestcaseAll({
       parallelExecution: false,
       extendedRes: true,
@@ -298,14 +285,13 @@ test(
         stepCount: 2,
       },
     })
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with step runOnError=true (Linear Execution)',
-  async (done) => {
+  async () => {
     const options = {
       parallelExecution: false,
       extendedRes: true,
@@ -364,15 +350,13 @@ test(
       data: { message: 'Step run' },
       logLevel: 'info',
     })
-
-    done()
   },
   TIMEOUT
 )
 
 test(
   'Run test case with step singleRunOnError=true (Linear Execution)',
-  async (done) => {
+  async () => {
     const options = {
       parallelExecution: false,
       extendedRes: true,
@@ -435,8 +419,6 @@ test(
       data: { message: 'Step run' },
       logLevel: 'info',
     })
-
-    done()
   },
   TIMEOUT
 )

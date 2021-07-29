@@ -16,7 +16,7 @@ const runner = new Runner({
 
 test(
   'Test that the steps are executed at the same time',
-  async (done) => {
+  async () => {
     const methods = ['beforeRun', 'run', 'afterRun']
     const stepInstances = createSteps(5)
 
@@ -26,8 +26,6 @@ test(
 
       expect(endTime - startTime).toBeLessThan(6 * 1000)
       expect(endTime - startTime).toBeGreaterThan(4 * 1000)
-
-      done()
     })
   },
   TIMEOUT

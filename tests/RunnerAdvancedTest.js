@@ -98,7 +98,7 @@ beforeAll(async () => {
 
 test(
   'Run with file logAdapter',
-  async (done) => {
+  async () => {
     RESULT = []
     const options = {
       parallelExecution: true,
@@ -160,8 +160,6 @@ test(
     }
 
     expect(RESULT).toEqual(expected)
-
-    done()
   },
   TIMEOUT
 )

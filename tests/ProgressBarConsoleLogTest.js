@@ -13,7 +13,7 @@ const registry = createRegistry()
 
 test(
   'Run with file logAdapter',
-  async (done) => {
+  async () => {
     const options = {
       parallelExecution: true,
       posTc: 1, // The tc where to store the action
@@ -53,8 +53,6 @@ test(
       progressMeterBatch: new ProgressBarConsoleLogBatch(),
     })
     await runner.run(suiteDefiniton)
-
-    done()
   },
   TIMEOUT
 )

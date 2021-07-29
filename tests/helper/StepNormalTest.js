@@ -3,7 +3,7 @@ import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
 
-test.skip('Run normal without any errors', async (done) => {
+test.skip('Run normal without any errors', async () => {
   const step = new StepNormal()
   step.logger = logAdapter
   step.data = { action: 'none', value: '' }
@@ -14,6 +14,4 @@ test.skip('Run normal without any errors', async (done) => {
   methods.forEach(async (method) => {
     await step[method]()
   })
-
-  done()
 })
