@@ -67,7 +67,7 @@
 		"@bitdiver/logadapter": "1.4.6",
 		"@bitdiver/model": "2.0.5",
 		"moment": "2.29.1",
-		"p-all": "3.0.0",
+		"p-all": "4.0.0",
 		"sprintf-js": "1.1.2",
 		"ts-progress": "0.1.7",
 		"uuid": "^8.3.2"
