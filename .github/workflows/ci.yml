@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 14.18.3
+          - 14.19.0
     steps:
       - uses: actions/checkout@v2
       - name: Cache node modules
@@ -23,7 +23,7 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Build / Test Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
