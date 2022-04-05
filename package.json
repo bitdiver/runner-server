@@ -66,7 +66,7 @@
 		"@bitdiver/definition": "2.0.5",
 		"@bitdiver/logadapter": "1.4.6",
 		"@bitdiver/model": "2.0.5",
-		"moment": "2.29.1",
+		"moment": "2.29.2",
 		"p-all": "3.0.0",
 		"sprintf-js": "1.1.2",
 		"ts-progress": "0.1.7",
