@@ -1,11 +1,11 @@
-coverage
 build
 src
+doc
 *.log
 *.tmp
 .test
 .tmp
-.gitignore
 .travis.yml
-.npmignore
+.vscode
 .github
+tests
