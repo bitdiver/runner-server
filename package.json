@@ -59,7 +59,7 @@
 		"prettier": "2.3.2",
 		"regenerator-runtime": "0.13.9",
 		"rimraf": "3.0.2",
-		"semantic-release": "17.4.4"
+		"semantic-release": "19.0.5"
 	},
 	"dependencies": {
 		"@babel/runtime": "7.14.8",
