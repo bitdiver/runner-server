@@ -1,0 +1,9 @@
+.vscode
+dist
+infrastructure
+package-lock.json
+coverage
+scripts
+node_modules
+.github
+README.md

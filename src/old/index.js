@@ -12,5 +12,5 @@ export {
   ProgressMeterBatch,
   ProgressBarConsoleBatch,
   ProgressBarConsoleLogBatch,
-  ProgressBarConsoleLogBatchJson,
+  ProgressBarConsoleLogBatchJson
 }

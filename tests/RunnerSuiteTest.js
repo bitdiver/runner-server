@@ -28,7 +28,7 @@ test(
     const runner = new Runner({
       stepRegistry: STEP_REGISTRY,
       logAdapter: LOG_ADAPTER,
-      parallelExecution: true,
+      parallelExecution: true
     })
 
     await runner.run(suiteDefiniton)
@@ -52,10 +52,10 @@ test(
           message: 'Start Run',
           stepCount: 27,
           suite: 'suite name',
-          testCaseCount: 3,
+          testCaseCount: 3
         },
-        logLevel: 'info',
-      },
+        logLevel: 'info'
+      }
     ])
 
     expect(tcLog).toEqual(expectedLog)

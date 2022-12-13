@@ -106,7 +106,7 @@ test(
       posStep: 0, // The step where to store the action
       extendedRes: false, // should create extended log result?
       action: 'logInfo', // The action of the testcase data
-      value: 'unknown', // The value for the action
+      value: 'unknown' // The value for the action
     }
 
     const singleSteps = new Array(30)
@@ -119,7 +119,7 @@ test(
     const suiteOptions = {
       testcaseCount: 30,
       stepCount: 30,
-      singleSteps,
+      singleSteps
     }
 
     const suiteDefiniton = createSuite(suiteOptions)
@@ -127,8 +127,8 @@ test(
     const data = {
       run: {
         action: options.action,
-        value: options.value,
-      },
+        value: options.value
+      }
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
@@ -136,7 +136,7 @@ test(
       stepRegistry: registry,
       logAdapter: logAdapterFile,
       parallelExecution: options.parallelExecution,
-      progressMeter: new MyProgressMeter(),
+      progressMeter: new MyProgressMeter()
     })
 
     await runner.run(suiteDefiniton)

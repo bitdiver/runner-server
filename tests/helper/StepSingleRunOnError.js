@@ -6,7 +6,7 @@ export default class StepSingleRunOnError extends StepBase {
       ...opts,
       type: STEP_TYPE_SINGLE,
       needData: false,
-      runOnError: true,
+      runOnError: true
     })
   }
 

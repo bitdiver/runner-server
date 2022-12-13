@@ -20,7 +20,7 @@ test(
       posStep: 0, // The step where to store the action
       extendedRes: false, // should create extended log result?
       action: 'unknown', // The action of the testcase data
-      value: 'unknown', // The value for the action
+      value: 'unknown' // The value for the action
     }
 
     const suiteDefiniton = createSuite()
@@ -28,15 +28,15 @@ test(
     const data = {
       run: {
         action: options.action,
-        value: options.value,
-      },
+        value: options.value
+      }
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
     const runner = new Runner({
       stepRegistry: registry,
       logAdapter: logAdapterFile,
-      parallelExecution: options.parallelExecution,
+      parallelExecution: options.parallelExecution
     })
     await runner.run(suiteDefiniton)
 
@@ -52,7 +52,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 1,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -65,7 +65,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 1,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -78,7 +78,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 3,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -91,7 +91,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 3,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -104,7 +104,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 4,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -117,7 +117,7 @@ test(
     expect(res).toEqual({
       'TC 1': 1,
       'TC 2': 4,
-      'TC 3': 1,
+      'TC 3': 1
     })
   },
   TIMEOUT
@@ -128,24 +128,24 @@ test(
   async () => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: true,
-      extendedRes: true,
+      extendedRes: true
     })
     expect(res).toEqual({
       'TC 1': {
         logCount: 1,
         status: 1,
-        stepCount: 5,
+        stepCount: 5
       },
       'TC 2': {
         logCount: 2,
         status: 4,
-        stepCount: 1,
+        stepCount: 1
       },
       'TC 3': {
         logCount: 1,
         status: 1,
-        stepCount: 5,
-      },
+        stepCount: 5
+      }
     })
   },
   TIMEOUT
@@ -155,24 +155,24 @@ test(
   async () => {
     const res = await runTestcaseHasStatusException({
       parallelExecution: false,
-      extendedRes: true,
+      extendedRes: true
     })
     expect(res).toEqual({
       'TC 1': {
         logCount: 1,
         status: 1,
-        stepCount: 5,
+        stepCount: 5
       },
       'TC 2': {
         logCount: 2,
         status: 4,
-        stepCount: 1,
+        stepCount: 1
       },
       'TC 3': {
         logCount: 1,
         status: 1,
-        stepCount: 5,
-      },
+        stepCount: 5
+      }
     })
   },
   TIMEOUT
@@ -187,14 +187,14 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 0, // The step where to store the action
       action: 'logFatal', // The action of the testcase data
-      value: 'FATAL', // The value for the action
+      value: 'FATAL' // The value for the action
     })
 
     // await logAdapter.writeFile('log/runlog.json')
     expect(res).toEqual({
       'TC 1': { logCount: 1, status: 2, stepCount: 4 },
       'TC 2': { logCount: 2, status: 5, stepCount: 1 },
-      'TC 3': { logCount: 1, status: 2, stepCount: 4 },
+      'TC 3': { logCount: 1, status: 2, stepCount: 4 }
     })
   },
   TIMEOUT
@@ -209,13 +209,13 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 0, // The step where to store the action
       action: 'logFatal', // The action of the testcase data
-      value: 'FATAL', // The value for the action
+      value: 'FATAL' // The value for the action
     })
 
     expect(res).toEqual({
       'TC 1': { logCount: 1, status: 2, stepCount: 4 },
       'TC 2': { logCount: 2, status: 5, stepCount: 1 },
-      'TC 3': { logCount: 1, status: 2, stepCount: 4 },
+      'TC 3': { logCount: 1, status: 2, stepCount: 4 }
     })
   },
   TIMEOUT
@@ -230,7 +230,7 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 1, // The step where to store the action
       action: 'logError', // The action of the testcase data
-      value: 'ERROR Single', // The value for the action
+      value: 'ERROR Single' // The value for the action
     })
 
     // await logAdapter.writeFile('log/runlog.json')
@@ -239,18 +239,18 @@ test(
       'TC 1': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
+        stepCount: 2
       },
       'TC 2': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
+        stepCount: 2
       },
       'TC 3': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
-      },
+        stepCount: 2
+      }
     })
   },
   TIMEOUT
@@ -265,25 +265,25 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 1, // The step where to store the action
       action: 'logError', // The action of the testcase data
-      value: 'ERROR Single', // The value for the action
+      value: 'ERROR Single' // The value for the action
     })
 
     expect(res).toEqual({
       'TC 1': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
+        stepCount: 2
       },
       'TC 2': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
+        stepCount: 2
       },
       'TC 3': {
         logCount: 2,
         status: 4,
-        stepCount: 2,
-      },
+        stepCount: 2
+      }
     })
   },
   TIMEOUT
@@ -298,7 +298,7 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 1, // The step where to store the action
       action: 'logError', // The action of the testcase data
-      value: 'ERROR Single', // The value for the action
+      value: 'ERROR Single' // The value for the action
     }
 
     logAdapter.reset()
@@ -307,15 +307,15 @@ test(
     const data = {
       run: {
         action: options.action,
-        value: options.value,
-      },
+        value: options.value
+      }
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
     const runOnErrorStep = new StepDefinition({
       class: 'runOnError',
       name: `Step which runs after Error`,
-      description: `Desc for step`,
+      description: `Desc for step`
     })
 
     suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
@@ -330,7 +330,7 @@ test(
     const runner = new Runner({
       stepRegistry: registry,
       logAdapter,
-      parallelExecution: options.parallelExecution,
+      parallelExecution: options.parallelExecution
     })
 
     await runner.run(suiteDefiniton)
@@ -341,14 +341,14 @@ test(
     expect(res).toEqual({
       'TC 1': { logCount: 2, status: 4, stepCount: 3 },
       'TC 2': { logCount: 2, status: 4, stepCount: 3 },
-      'TC 3': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 3': { logCount: 2, status: 4, stepCount: 3 }
     })
     const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
     expect(logs['TC 1'].steps['Step which runs after Error'].logs[2]).toEqual({
       countAll: 6,
       countCurrent: 6,
       data: { message: 'Step run' },
-      logLevel: 'info',
+      logLevel: 'info'
     })
   },
   TIMEOUT
@@ -363,7 +363,7 @@ test(
       posTc: 1, // The tc where to store the action
       posStep: 1, // The step where to store the action
       action: 'logError', // The action of the testcase data
-      value: 'ERROR Single', // The value for the action
+      value: 'ERROR Single' // The value for the action
     }
 
     logAdapter.reset()
@@ -372,15 +372,15 @@ test(
     const data = {
       run: {
         action: options.action,
-        value: options.value,
-      },
+        value: options.value
+      }
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
     const runOnErrorStep = new StepDefinition({
       class: 'singleRunOnError',
       name: `Step single which runs after Error`,
-      description: `Desc for step`,
+      description: `Desc for step`
     })
 
     suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
@@ -395,7 +395,7 @@ test(
     const runner = new Runner({
       stepRegistry: registry,
       logAdapter,
-      parallelExecution: options.parallelExecution,
+      parallelExecution: options.parallelExecution
     })
 
     await runner.run(suiteDefiniton)
@@ -406,7 +406,7 @@ test(
     expect(res).toEqual({
       'TC 1': { logCount: 2, status: 4, stepCount: 3 },
       'TC 2': { logCount: 2, status: 4, stepCount: 3 },
-      'TC 3': { logCount: 2, status: 4, stepCount: 3 },
+      'TC 3': { logCount: 2, status: 4, stepCount: 3 }
     })
 
     const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
@@ -417,7 +417,7 @@ test(
       countAll: 6,
       countCurrent: 6,
       data: { message: 'Step run' },
-      logLevel: 'info',
+      logLevel: 'info'
     })
   },
   TIMEOUT
@@ -466,7 +466,7 @@ async function runTestcaseAll(opts = {}) {
     extendedRes: false, // should create extended log result?
     action: 'unknown', // The action of the testcase data
     value: 'unknown', // The value for the action
-    ...opts,
+    ...opts
   }
   logAdapter.reset()
   const suiteDefiniton = createSuite()
@@ -474,15 +474,15 @@ async function runTestcaseAll(opts = {}) {
   const data = {
     run: {
       action: options.action,
-      value: options.value,
-    },
+      value: options.value
+    }
   }
   suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
   const runner = new Runner({
     stepRegistry: registry,
     logAdapter,
-    parallelExecution: options.parallelExecution,
+    parallelExecution: options.parallelExecution
   })
   await runner.run(suiteDefiniton)
   // no check the log status
@@ -516,7 +516,7 @@ function checkTcStatus(extended = false) {
       res[tcName] = {
         status: statusLog.data.status,
         logCount: tcLog.logs.length,
-        stepCount: Object.keys(tcLog.steps).length,
+        stepCount: Object.keys(tcLog.steps).length
       }
     } else {
       res[tcName] = statusLog.data.status

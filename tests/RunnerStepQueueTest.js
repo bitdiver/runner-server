@@ -11,7 +11,7 @@ const registry = createRegistry()
 const runner = new Runner({
   stepRegistry: registry,
   logAdapter,
-  parallelExecution: true,
+  parallelExecution: true
 })
 
 test(

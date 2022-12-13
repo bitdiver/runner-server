@@ -1,10 +1,45 @@
-lib
-node_modules
-coverage
-jsdoc
-npm-debug.log
-yarn.lock
-tests/volatile
-package-lock.json
+# OS dependend
 .DS_Store
+.DS_Store/
+
+# ---------------------
+# artefacts created by install
+# ---------------------
+package.json~
+npm-debug.log
+node_modules
+
+# ---------------------
+# artefacts created by build and test
+# ---------------------
+lib
+coverage
+dist
+docTmp
+out
+
+# ---------------------
+# test artefacts
+# ---------------------
+result
+tests/volatile
+tests/volatile*
+
+# used to set environment variables for tests
+*.env
+*.bkp
+
+# ---------------------
+# other
+# ---------------------
 log
+*.log
+*.js.orig
+.drawio.bkp
+.drawio.dtmp
+
+*.zip
+*.iml
+*.backup
+.vscode
+

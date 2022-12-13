@@ -49,26 +49,26 @@ async function gumbo() {
     posStep: 0, // The step where to store the action
     extendedRes: false, // should create extended log result?
     action: 'logWarning', // The action of the testcase data
-    value: 'Eine Warnung', // The value for the action
+    value: 'Eine Warnung' // The value for the action
   }
 
   const suiteDefiniton = createSuite({
     testcaseCount: 20,
-    stepCount: 20,
+    stepCount: 20
   })
 
   const data = {
     run: {
       action: options.action,
-      value: options.value,
-    },
+      value: options.value
+    }
   }
   suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
   const runner = new Runner({
     stepRegistry: registry,
     logAdapterFile,
-    parallelExecution: options.parallelExecution,
+    parallelExecution: options.parallelExecution
   })
   await runner.run(suiteDefiniton)
 

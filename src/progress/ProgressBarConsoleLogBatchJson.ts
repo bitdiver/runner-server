@@ -1,105 +1,104 @@
-import ProgressMeterBatch from './ProgressMeterBatch'
-import assert from 'assert'
-import moment from 'moment'
+import { ProgressMeterBatch } from './ProgressMeterBatch'
+import { DateTime } from 'luxon'
 
 export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
-  constructor(opts = {}) {
-    super(opts)
+  sequence: number
+
+  /** The luxon time format */
+  timeFormat: string
+
+  constructor(opts: { name: string; timeFormat: string }) {
+    super(opts.name)
     this.sequence = 0
-    this.timeZone = opts.timeZone ? opts.timeZone : moment().utcOffset()
     this.timeFormat = opts.timeFormat
       ? opts.timeFormat
-      : 'YYYY-MM-DD_HH:mm:ss_ZZ'
+      : 'yyyy-MM-dd_HH:mm:ss_ZZ'
   }
 
-  _printHeader() {
+  _printHeader(): void {
     const data = {
       'Execute suite': `${this.name}`,
       'Total step count': `${this.stepCount}`,
-      'Total test case count': `${this.testcaseCount}`,
+      'Total test case count': `${this.testcaseCount}`
     }
 
     this.log(data)
   }
 
-  _printFooter() {
+  _printFooter(): void {
     const data = {
       'Result for suite': `${this.name}`,
       Steps: `${this.currentStep}/${this.stepCount}`,
       Testcase: `${this.currentTestcase}/${this.testcaseCount}`,
       Failed: `${this.testcaseFailed}`,
-      'Last step': `${this.lastStep}`,
-      'Last test case': `${this.lastTestcase}`,
+      'Last step': `${this.lastStepName}`,
+      'Last test case': `${this.lastTestcaseName}`
     }
 
     this.log(data)
   }
 
-  done() {
+  done(): void {
     super.done()
     this._printFooter()
   }
 
-  init(opts) {
-    super.init(opts)
+  init(request: {
+    testcaseCount: number
+    stepCount: number
+    name?: string
+  }): void {
+    super.init(request)
     this._printHeader()
   }
 
   /**
    * Increments the current step count. Will be called when starting
    * a new step.
-   * @param name {string} The name of the current step
+   * @param name - The name of the current step
    */
-  incStep(name) {
+  incStep(name: string): void {
     super.incStep(name)
 
     // eslint-disable-next-line no-console
-    const data = `${this.currentStep}/${this.stepCount} ${this.lastStep}`
+    const data = `${this.currentStep}/${this.stepCount} ${this.lastStepName}`
     this.log(data)
   }
 
   /**
-   * @param data {object} The object with the data to be logged and the needed meta data
-   *     const logMessage = {
-   *       meta:{
+   * @param data -  The object with the data to be logged and the needed meta data
+   *     const logMessage = \{
+   *       meta:\{
    *         logTyp: 'ProgressBarConsole',
    *         logTime: 1555574996384,
    *         logTimeString: '2019-04-18_10:09:56_+0200',
    *         sequence: '0',
-   *       }
-   *       data:{
+   *       \}
+   *       data:\{
    *          message: ''
-   *       },
-   *     }
-   * @return promise {promise} A promise until the log message is written
+   *       \},
+   *     \}
    */
-  async log(message) {
-    assert.ok(message, `The 'logMessage' parameter was not given`)
-
+  log(message: any): void {
     const logMessage = {
       meta: {
-        logTyp: 'ProgressBarConsole',
+        logTyp: 'ProgressBarConsole'
       },
       data: {
-        message: '',
-      },
+        message: ''
+      }
     }
     logMessage.data = message
 
-    assert.ok(
-      logMessage.data,
-      `The log message does not have a 'data' property`
-    )
-
-    await this._writeLog(logMessage)
+    this._writeLog(logMessage)
   }
 
   /**
    * This method will do the work. It is called by the log method
    * if the logLevel of the message shows that the message is relavant for logging
-   *
+   * @param logMessage - The message to be logged
    */
-  async _writeLog(logMessage) {
+  _writeLog(logMessage: any): void {
     const meta = logMessage.meta
     const data = logMessage.data
 
@@ -107,9 +106,10 @@ export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
     if (meta.logTime === undefined) {
       meta.logTime = Date.now()
     }
-    meta.logTimeString = moment(meta.logTime)
-      .utcOffset(this.timeZone)
-      .format(this.timeFormat)
+
+    meta.logTimeString = DateTime.fromMillis(meta.logTime).toFormat(
+      this.timeFormat
+    )
 
     meta.sequence = this.sequence++
 

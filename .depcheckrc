@@ -1,0 +1,14 @@
+ignores: [
+  "@xhubio/build-base",
+  "@semantic-release/*",
+  "@types/jest",
+  "@types/node",
+  "@typescript-eslint/parser",
+  "@typescript-eslint/eslint-plugin",
+  "eslint-config-prettier",
+  "eslint-plugin-*",
+  "eslint-config-standard-with-typescript",
+  "semantic-release",
+  "ts-jest",
+  "typedoc"
+]

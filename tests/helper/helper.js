@@ -3,7 +3,7 @@
 import {
   SuiteDefinition,
   TestcaseDefinition,
-  StepDefinition,
+  StepDefinition
 } from '@bitdiver/definition'
 import { StepRegistry } from '@bitdiver/model'
 import StepNormal from './StepNormal'
@@ -27,7 +27,7 @@ export function createSuite(opts = {}) {
     testcaseCount: DEFAULT_TC_COUNT,
     stepCount: DEFAULT_STEP_COUNT,
     singleSteps: [undefined, 1],
-    ...opts,
+    ...opts
   }
 
   // -------------------------------
@@ -35,7 +35,7 @@ export function createSuite(opts = {}) {
   // -------------------------------
   const suite = new SuiteDefinition({
     name: 'test suite 1',
-    description: 'Desc 1',
+    description: 'Desc 1'
   })
 
   // -------------------------------
@@ -48,13 +48,13 @@ export function createSuite(opts = {}) {
       step = new StepDefinition({
         class: 'single',
         name: `Step single ${i + 1}`,
-        description: `Desc for step ${i + 1}`,
+        description: `Desc for step ${i + 1}`
       })
     } else {
       step = new StepDefinition({
         class: 'normal',
         name: `Step normal ${i + 1}`,
-        description: `Desc for step ${i + 1}`,
+        description: `Desc for step ${i + 1}`
       })
     }
 
@@ -74,7 +74,7 @@ export function createSuite(opts = {}) {
 
     const tc = new TestcaseDefinition({
       name: `TC ${i + 1}`,
-      description: `Description for testcase ${i + 1}`,
+      description: `Description for testcase ${i + 1}`
     })
     tc.steps = stepIds
     tc.data = data
