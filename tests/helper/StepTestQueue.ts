@@ -1,11 +1,14 @@
-export default class StepTestQueue {
-  constructor(opts = {}) {
+export class StepTestQueue {
+  name: string
+  tcName: string
+  console: boolean = false
+  constructor(opts: { name: string; tcName: string; console?: boolean }) {
     this.name = opts.name
     this.tcName = opts.tcName
-    this.console = opts.console || false
+    this.console = opts.console ?? false
   }
 
-  async logInfo(msg) {
+  async logInfo(msg: string): Promise<void> {
     this.logMe(
       `Step: ${this.name} -> TC: ${
         this.tcName
@@ -16,7 +19,7 @@ export default class StepTestQueue {
   /**
    * This method will be called when the step starts.
    */
-  async start() {
+  async start(): Promise<void> {
     this.logMe(
       `Step: ${this.name} -> TC: ${
         this.tcName
@@ -27,7 +30,7 @@ export default class StepTestQueue {
   /**
    * This method will be called just before the run method
    */
-  async beforeRun() {
+  async beforeRun(): Promise<void> {
     this.logMe(
       `Step: ${this.name} -> TC: ${
         this.tcName
@@ -38,8 +41,8 @@ export default class StepTestQueue {
   /**
    * This method will be called just before the run method
    */
-  async run() {
-    return new Promise((resolve) => {
+  async run(): Promise<void> {
+    return await new Promise((resolve) => {
       // const min = 5
       // const max = 100
       // const time = Math.floor(Math.random() * (max - min)) + min
@@ -51,7 +54,7 @@ export default class StepTestQueue {
           } at ${new Date()} method: 'run'`
         )
 
-        resolve(1)
+        resolve()
       }, time)
     })
   }
@@ -59,7 +62,7 @@ export default class StepTestQueue {
   /**
    * This method will be called just after the run is finished
    */
-  async afterRun() {
+  async afterRun(): Promise<void> {
     this.logMe(
       `Step: ${this.name} -> TC: ${
         this.tcName
@@ -70,13 +73,13 @@ export default class StepTestQueue {
   /**
    * This method will be called when the step is finished
    */
-  async end() {
+  async end(): Promise<void> {
     this.logMe(
       `Step: ${this.name} -> TC: ${this.tcName} at ${new Date()} method: 'end'`
     )
   }
 
-  logMe(msg) {
+  logMe(msg: string): void {
     if (this.console) {
       // eslint-disable-next-line no-console
       console.log(msg)

@@ -1,13 +1,13 @@
 import { ProgressMeterBatch } from './ProgressMeterBatch'
 import { DateTime } from 'luxon'
 
-export default class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
+export class ProgressBarConsoleLogBatchJson extends ProgressMeterBatch {
   sequence: number
 
   /** The luxon time format */
   timeFormat: string
 
-  constructor(opts: { name: string; timeFormat: string }) {
+  constructor(opts: { name: string; timeFormat?: string }) {
     super(opts.name)
     this.sequence = 0
     this.timeFormat = opts.timeFormat

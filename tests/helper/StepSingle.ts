@@ -1,36 +1,38 @@
-import StepNormal from './StepNormal'
-import { STEP_TYPE_SINGLE } from '@bitdiver/model'
+import { StepNormal } from './StepNormal'
+import { StepType } from '@bitdiver/model'
+import { StepOptions } from '@bitdiver/model/dist/src/interfaceStepOptions'
 
 /**
  * Simulates a single step. Dependend on the given step data the step
  * will cretae errors or will fail in one of the given methods
  */
-export default class StepSingle extends StepNormal {
-  constructor(opts = {}) {
+export class StepSingle extends StepNormal {
+  constructor(opts: StepOptions) {
     super(opts)
-    this.type = STEP_TYPE_SINGLE
+    this.type = StepType.single
   }
-  _work(method) {
-    this.data.forEach((dat) => {
+
+  async _work(method: string): Promise<void> {
+    for (const dat of this.data) {
       if (dat[method] !== undefined) {
         // Ok there is an action defined for this method
         const action = dat[method].action
         const value = dat[method].value
 
         if (action === 'logInfo') {
-          this.logInfo(value)
+          await this.logInfo(value)
         } else if (action === 'logWarning') {
-          this.logWarning(value)
+          await this.logWarning(value)
         } else if (action === 'logError') {
-          this.logError(value)
+          await this.logError(value)
         } else if (action === 'logFatal') {
-          this.logFatal(value)
+          await this.logFatal(value)
         } else if (action === 'exception') {
           throw new Error(value)
         }
       }
-    })
-    return new Promise((resolve) => {
+    }
+    return await new Promise((resolve) => {
       const min = 5
       const max = 100
       const time = Math.floor(Math.random() * (max - min)) + min
@@ -38,7 +40,7 @@ export default class StepSingle extends StepNormal {
         // console.log(
         //   `Execute Single Step '${this.name}' with method '${method}''`
         // )
-        resolve(1)
+        resolve()
       }, time)
     })
   }

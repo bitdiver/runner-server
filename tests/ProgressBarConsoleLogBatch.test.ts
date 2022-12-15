@@ -1,10 +1,8 @@
 import { createSuite, createRegistry } from './helper/helper'
-import { Runner } from '../src/index'
-import { ProgressBarConsoleLogBatch } from '../src/index'
-import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
+import { Runner, ProgressBarConsoleLogBatch } from '../src/index'
+import { getLogAdapterMemory } from '@bitdiver/logadapter'
 
 const logAdapter = getLogAdapterMemory()
-const logAdapterFile = getLogAdapterFile()
 const TIMEOUT = 1000000
 
 logAdapter.level = 0
@@ -47,12 +45,14 @@ test(
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
     const runner = new Runner({
+      dataDirectory: '',
       stepRegistry: registry,
-      logAdapter: logAdapterFile,
+      id: '0815',
+      suite: suiteDefiniton,
       parallelExecution: options.parallelExecution,
       progressMeterBatch: new ProgressBarConsoleLogBatch()
     })
-    await runner.run(suiteDefiniton)
+    await runner.run()
   },
   TIMEOUT
 )

@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid'
 import pAll from 'p-all'
 
 import {
-  getLogLevelName,
   getLogAdapterFile,
   LEVEL_ERROR,
   LEVEL_FATAL,
@@ -254,7 +253,8 @@ export class Runner {
         step.environmentTestcase = tcEnv
         step.data = tc.data[stepCounter]
 
-        if (!this._shouldStopRun() || tcEnv.running || step.runOnError) {
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        if (!this._shouldStopRun() || tcEnv?.running || step.runOnError) {
           // OK the step should run
           await this._executeStepMethodOrdered([step], ['start'])
           await this._executeStepMethodOrdered([step], ['beforeRun', 'run'])
@@ -310,7 +310,7 @@ export class Runner {
       step.countCurrent = i + 1
       step.countAll = stepCount
       step.testMode = this.testMode
-      step.logAdapter = this
+      step.logAdapter = this.logAdapter
       step.environmentRun = this.environmentRun
 
       if (i > 0) {
@@ -320,7 +320,8 @@ export class Runner {
       if (step.type === StepType.single) {
         // Single Step
         step.data = []
-        step.environmentTestcase = []
+        const envs: EnvironmentTestcase[] = []
+        step.environmentTestcase = envs
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
@@ -329,6 +330,9 @@ export class Runner {
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+          if (tcEnv === undefined) {
+            throw new Error('Test case environment could not be found')
+          }
           this.progressMeterBatch.incTestcase(tcEnv.name)
 
           if (tcEnv.running || step.runOnError) {
@@ -356,6 +360,9 @@ export class Runner {
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+          if (tcEnv === undefined) {
+            throw new Error('The test case Environment could not be found')
+          }
 
           const data = tc.data[i]
           if ((data !== undefined && data !== null) || !step.needData) {
@@ -381,7 +388,7 @@ export class Runner {
               ? stepDefinition.name
               : stepDefinition.id
             step.testMode = this.testMode
-            step.logAdapter = this
+            step.logAdapter = this.logAdapter
             step.environmentRun = this.environmentRun
           } else {
             this.progressMeterBatch.incTestcase('')
@@ -423,6 +430,9 @@ export class Runner {
 
     for (const tcEnvId of this.environmentTestcaseIds) {
       const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
+      if (tcEnv === undefined) {
+        throw new Error('The test case envrionment could not be found')
+      }
 
       if (tcEnv.status === STATUS_WARNING) {
         warn++
@@ -444,6 +454,7 @@ export class Runner {
    */
   async _closeTestcases(): Promise<void> {
     if (
+      this.environmentRun === undefined ||
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
     ) {
@@ -517,7 +528,7 @@ export class Runner {
    */
   async _getMethodPromise(
     stepInstance: StepBase,
-    methods: any[]
+    methods: string[]
   ): Promise<void> {
     const asyncArray = []
 
@@ -527,15 +538,23 @@ export class Runner {
       })
 
       asyncArray.push(async () => {
-        return stepInstance[method]().catch(async (err: any) => {
+        stepInstance[method as keyof StepBase]().catch(async (err: any) => {
           await this.setStepFail(stepInstance, err)
         })
       })
     }
 
-    await asyncArray.reduce(async (prev, curr) => {
-      return await prev.then(curr)
-    }, Promise.resolve(1))
+    for (const functionPromise of asyncArray) {
+      try {
+        await functionPromise
+      } catch (e) {
+        // do nothing
+      }
+    }
+
+    // await asyncArray.reduce(async (prev, curr) => {
+    //   return await prev.then(curr)
+    // }, Promise.resolve(1))
   }
 
   /**
@@ -547,13 +566,13 @@ export class Runner {
    */
   async _executeStepMethodOrdered(
     stepInstances: StepBase[],
-    methods: any[]
+    methods: string[]
   ): Promise<void> {
     for (const stepInstance of stepInstances) {
       try {
         for (const method of methods) {
           await stepInstance.logInfo(`Step ${method}`)
-          await stepInstance[method]()
+          await stepInstance[method as keyof StepBase]()
         }
       } catch (err) {
         await this.setStepFail(stepInstance, err)
@@ -597,6 +616,9 @@ export class Runner {
    * Logs the start of a run
    */
   async _logStartRun(opts = {}): Promise<void> {
+    if (this.environmentRun === undefined) {
+      throw new Error('The EnvironmentRun is undefined')
+    }
     const data = {
       message: 'Start Run',
       suite: this.name,
@@ -614,6 +636,9 @@ export class Runner {
    * Logs the end of a run
    */
   async _logEndRun(opts = {}): Promise<void> {
+    if (this.environmentRun === undefined) {
+      throw new Error('The EnvironmentRun is undefined')
+    }
     const data = {
       message: 'Stop Run',
       suite: this.name,
@@ -653,9 +678,9 @@ export class Runner {
   async setStepFail(
     stepInstance: StepBase,
     err: any = 'Unknown Message: Empty error from step execution'
-  ): Promise<void[]> {
+  ): Promise<void> {
     // Delegate the logging to the step
-    return await stepInstance._log(err, LEVEL_ERROR)
+    await stepInstance._log(err, LEVEL_ERROR)
   }
 
   /**
@@ -679,10 +704,14 @@ export class Runner {
     const status = this._getStatusForLoglevel(logLevel)
 
     const envTc = this.environmentTestcaseMap.get(logMessage.meta.tc.id)
+    if (envTc === undefined) {
+      throw new Error('The test case envrionment could not be found')
+    }
+
     if (status >= STATUS_ERROR) {
       // there is an error. The status must be set
       promises.push(this.setTestcaseFail(envTc, logMessage.data, status))
-      promises.push(this.setRunFail(logMessage.data, getLogLevelName(status)))
+      promises.push(this.setRunFail(logMessage.data, status))
     } else {
       envTc.status = status
     }
@@ -704,7 +733,10 @@ export class Runner {
     environmentTestcase: EnvironmentTestcase,
     messageObj: any,
     status = STATUS_ERROR
-  ): Promise<void[]> {
+  ): Promise<void> {
+    if (this.environmentRun === undefined) {
+      throw new Error('The EnvironmentRun is undefined')
+    }
     const promisses = []
     if (
       environmentTestcase.status < STATUS_ERROR &&
@@ -727,7 +759,7 @@ export class Runner {
       // promisses.push(this._logTestcaseStatus(environmentTestcase))
     }
 
-    return await Promise.all(promisses)
+    await Promise.all(promisses)
   }
 
   /**
@@ -739,8 +771,11 @@ export class Runner {
 
   async setRunFail(
     messageObj: any,
-    status: string = STATUS_ERROR
+    status: number = STATUS_ERROR
   ): Promise<void> {
+    if (this.environmentRun === undefined) {
+      throw new Error('The EnvironmentRun is undefined')
+    }
     this.environmentRun.status = status
 
     await generateLogs({
@@ -759,6 +794,9 @@ export class Runner {
   async _logTestcaseStatus(
     environmentTestcase: EnvironmentTestcase
   ): Promise<void> {
+    if (this.environmentRun === undefined) {
+      throw new Error('The EnvironmentRun is undefined')
+    }
     await generateLogs({
       environmentRun: this.environmentRun,
       environmentTestcase,
