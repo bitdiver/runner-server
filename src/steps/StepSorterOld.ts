@@ -16,16 +16,22 @@ export interface Node {
 
   /** stores the longest path to the root node */
   longestPathToRoot?: string[]
+
+  /** When the node are ordered, this is the node before this node  */
+  predecessorNode?: Node
+
+  /** When the node are ordered, this is the node after this node  */
+  successorNode?: Node
 }
 
 /**
  * Sorts all the steps in the right order.
  */
-export class StepTree {
+export class StepSorter {
   /** The start node of the node tree */
   nodeTree: Node
 
-  /** Stores alle the node which are already existing by there stepName  */
+  /** Stores alle the node which are already existing by there stepNames  */
   nodeMap: Map<string, Node>
 
   constructor() {
@@ -35,13 +41,13 @@ export class StepTree {
   }
 
   /**
-   * Adds a list of steps to the existong ones.
-   * If the step does not yet exists it creates a new one.
-   * Then connects the steps to each other.
+   * Checks if one of the new steps does already exists in the existing steps.
+   * If there is no
    * @param stepNames - An array of step names to be added
    */
   public add(stepNames: string[]): void {
-    // When false, then the created node chain needs to be connected to the start node
+    // When false, then the created node chain needs to be connected to the start
+    // node
     let isConnected = false
     let firstNode: Node | undefined
     let lastNode: Node | undefined
@@ -77,9 +83,6 @@ export class StepTree {
       // Connect the start node with this node chain
       this.connectNodes({ sourceNode: this.nodeTree, targetNode: firstNode })
     }
-
-    this.connectDanglingStartStep(stepNames[0])
-    cleanupRootNode(this.nodeTree)
   }
 
   /**
@@ -96,24 +99,73 @@ export class StepTree {
   }
 
   /**
-   * Checks if the first step is connected to the root node.
-   * If not, it will create the connection
-   * @param stepName - The name of the first step
+   * Each node which has no incomming connection needs to be connected with the
+   * root node. Go over all nodes and check if incomming connections are defined.
+   *
    */
-  protected connectDanglingStartStep(stepName: string): void {
-    const node = this.nodeMap.get(stepName)
-    if (node?.incomming.size === 0) {
-      // This node has no incomming connections.
-      this.connectNodes({ sourceNode: this.nodeTree, targetNode: node })
+  protected connectDanglingStartSteps(): void {
+    for (const stepName of this.nodeMap.keys()) {
+      const node = this.nodeMap.get(stepName)
+      if (node?.incomming.size === 0) {
+        // This node has no incomming connections.
+        this.connectNodes({ sourceNode: this.nodeTree, targetNode: node })
+      }
     }
   }
 
   /**
-   * This method add the longest path to the root node to each node.
-   * So the prdecessor is always the first name of the longest path.
-   * This method is called by the sorter.
+   * Returns all the steps in the right order. This method mus only be called after all
+   * the steps are added
+   * @returns stepname - The step names in the right order
    */
-  public setLongestPathToRootForAllNodes(): void {
+  public getSteps(): string[] {
+    this.connectDanglingStartSteps()
+    cleanupRootNode(this.nodeTree)
+    this.setLongestPathToRootForAllNodes()
+    this.orderNodes()
+    return this.getOrderedStepNames()
+  }
+
+  /**
+   * returns an array with all the steps in the right order
+   * @returns stepNames - The names of all the steps in the right order
+   */
+  protected getOrderedStepNames(): string[] {
+    const stepNames: string[] = []
+
+    let currentNode = this.nodeTree.successorNode
+    while (currentNode !== undefined) {
+      stepNames.push(currentNode.stepName)
+      currentNode = currentNode.successorNode
+    }
+
+    return stepNames
+  }
+
+  /**
+   * Put all the nodes in one order.
+   *
+   */
+  protected orderNodes(): void {
+    debugger
+    for (const stepName of this.nodeMap.keys()) {
+      const node = this.nodeMap.get(stepName) as Node
+      if (node.predecessorNode === undefined) {
+        // this node is not yet ordered.
+        // get the predecessor step name
+        const longestPathToRoot = node.longestPathToRoot as string[]
+        const predecessorStepName = longestPathToRoot[0]
+
+        let predecessorNode = this.nodeMap.get(predecessorStepName) as Node
+        if (predecessorStepName === ROOT_NODE_NAME) {
+          predecessorNode = this.nodeTree
+        }
+        insertNodeInOrder(node, predecessorNode)
+      }
+    }
+  }
+
+  protected setLongestPathToRootForAllNodes(): void {
     for (const stepName of this.nodeMap.keys()) {
       const node = this.nodeMap.get(stepName) as Node
       if (node.longestPathToRoot === undefined) {
@@ -125,8 +177,21 @@ export class StepTree {
 }
 
 /**
+ * Inserts the node. If the predecessor already have a successor, the successor node
+ * will be attached to the inserted node.
+ * @param currentNode - The node to be inserted
+ * @param predecessorNode - The predecessor for this node
+ */
+function insertNodeInOrder(currentNode: Node, predecessorNode: Node): void {
+  if (predecessorNode.successorNode !== undefined) {
+    currentNode.successorNode = predecessorNode.successorNode
+  }
+  currentNode.predecessorNode = predecessorNode
+  predecessorNode.successorNode = currentNode
+}
+
+/**
  * Creates the longest path to the root node.
- * The logest path is used to get the right path from the root to the end.
  * Iterates all the incomming nodes. For each of them it calculates the path to the root.
  * If there is a node in the way which has no path to root, it will call itself again
  * for this node
@@ -141,8 +206,8 @@ function createLongestPathToRoot(request: {
   const incommingPathes: string[][] = []
   // stores all the incomming pathes of this node
   for (const incommingStepname of node.incomming.keys()) {
-    const incommingNode = nodeMap.get(incommingStepname) as Node
-    if (!incommingNode.isStartNode) {
+    if (incommingStepname !== ROOT_NODE_NAME) {
+      const incommingNode = nodeMap.get(incommingStepname) as Node
       if (incommingNode.longestPathToRoot === undefined) {
         // This node does not yet have the longest path. So it mus be created first
         createLongestPathToRoot({ node: incommingNode, nodeMap })
@@ -152,7 +217,7 @@ function createLongestPathToRoot(request: {
         ...(incommingNode.longestPathToRoot as string[])
       ])
     } else {
-      incommingPathes.push([incommingNode.stepName])
+      incommingPathes.push([ROOT_NODE_NAME])
     }
   }
 
@@ -169,9 +234,8 @@ function createLongestPathToRoot(request: {
 
 /**
  * Checks the connections from the root node to all the other nodes.
- * If the root node has more than one connection to the same grapth
- * and the node has alreay an incomming node, then the connection must
- * be removed.
+ * If the root node has more than one connection to the same node,
+ * one of them needs to be deleted.
  *
  * Start with the root and for each node store the path from the root to the
  * node. In the first iteration all the nodes are visited.
@@ -182,26 +246,52 @@ function createLongestPathToRoot(request: {
  * @param rootNode - The root node of all the nodes
  */
 function cleanupRootNode(rootNode: Node): void {
+  const nodeMap: Map<string, string[]> = new Map()
+
+  // create the node map
   for (const stepName of rootNode.outgoing.keys()) {
-    const node = rootNode.outgoing.get(stepName) as Node
-    if (node.incomming.size > 1) {
-      // The node has an other incomming connection. So the connection from the root
-      // could be deleted
-      deleteConnection(rootNode, node)
+    const nextNode = rootNode.outgoing.get(stepName) as Node
+    iterate(nextNode, [stepName])
+  }
+
+  // now check the connections from the root to the outgoing nodes
+  for (const stepName of rootNode.outgoing.keys()) {
+    const nodePath = nodeMap.get(stepName) as string[]
+    if (nodePath.length > 1) {
+      // in this case delete this connection
+      const targetNode = rootNode.outgoing.get(stepName)
+      rootNode.outgoing.delete(stepName)
+      targetNode?.incomming.delete(rootNode.stepName)
+    }
+  }
+
+  /**
+   *
+   * @param node - The node
+   * @param path - The path of this node from the root node
+   * @returns
+   */
+  function iterate(node: Node, nodePath: string[]): void {
+    const stepName = node.stepName
+    if (nodeMap.has(stepName)) {
+      // the node was already visited
+      // get the last path for this node
+      const lastNodePath = nodeMap.get(stepName) as string[]
+      if (lastNodePath.length < nodePath.length) {
+        // store always the longest path
+        nodeMap.set(stepName, nodePath)
+      }
+    } else {
+      // ok the current node was not yet visited.
+      nodeMap.set(stepName, nodePath)
+    }
+
+    for (const key of node.outgoing.keys()) {
+      const newNode: Node = node.outgoing.get(key) as Node
+      iterate(newNode, [...nodePath, newNode.stepName])
     }
   }
 }
-
-/**
- * Deletes an existing connection
- * @param source - The source node
- * @param target - The target node
- */
-function deleteConnection(source: Node, target: Node): void {
-  source.outgoing.delete(target.stepName)
-  target.incomming.delete(source.stepName)
-}
-
 
 /**
  * Checks if the stepName is already connected. Not only with the last node, also
