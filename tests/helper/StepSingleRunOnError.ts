@@ -1,11 +1,10 @@
-import { StepBase, StepType } from '@bitdiver/model'
+import { StepSingle } from '@bitdiver/model'
 import { StepOptions } from '@bitdiver/model/dist/src/interfaceStepOptions'
 
-export class StepSingleRunOnError extends StepBase {
+export class StepSingleRunOnError extends StepSingle {
   constructor(opts: StepOptions) {
     super({
       ...opts,
-      type: StepType.single,
       needData: false,
       runOnError: true
     })

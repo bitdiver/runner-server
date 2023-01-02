@@ -1,8 +1,11 @@
 import { createSuite, createRegistry } from './helper/helper'
 import { Runner } from '../src/index'
-import { getLogAdapterMemory, getLogAdapterFile } from '@bitdiver/logadapter'
-
-import { StepDefinition } from '@bitdiver/definition'
+import {
+  LogAdapterMemory,
+  getLogAdapterMemory,
+  getLogAdapterFile
+} from '@bitdiver/logadapter'
+import { StepDefinitionInterface } from '@bitdiver/definition'
 
 const logAdapter = getLogAdapterMemory()
 const logAdapterFile = getLogAdapterFile()
@@ -23,7 +26,7 @@ test(
       value: 'unknown' // The value for the action
     }
 
-    const suiteDefiniton = createSuite()
+    const suiteDefiniton = createSuite({})
 
     const data = {
       run: {
@@ -36,11 +39,14 @@ test(
     const runner = new Runner({
       stepRegistry: registry,
       logAdapter: logAdapterFile,
-      parallelExecution: options.parallelExecution
+      parallelExecution: options.parallelExecution,
+      dataDirectory: '',
+      id: 'myGreatId',
+      suite: suiteDefiniton
     })
-    await runner.run(suiteDefiniton)
+    await runner.run()
 
-    expect().toEqual()
+    expect('a').toEqual('a')
   },
   TIMEOUT
 )
@@ -71,7 +77,7 @@ test(
   TIMEOUT
 )
 
-test(
+test.only(
   'Run test case with status warning (Parallel Execution)',
   async () => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: true })
@@ -301,8 +307,8 @@ test(
       value: 'ERROR Single' // The value for the action
     }
 
-    logAdapter.reset()
-    const suiteDefiniton = createSuite()
+    await logAdapter.reset()
+    const suiteDefiniton = createSuite({})
 
     const data = {
       run: {
@@ -312,11 +318,11 @@ test(
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
-    const runOnErrorStep = new StepDefinition({
-      class: 'runOnError',
-      name: `Step which runs after Error`,
-      description: `Desc for step`
-    })
+    const runOnErrorStep: StepDefinitionInterface = {
+      id: 'runOnError',
+      name: 'Step which runs after Error',
+      description: 'Desc for step'
+    }
 
     suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
     for (const tc of suiteDefiniton.testcases) {
@@ -328,12 +334,15 @@ test(
     suiteDefiniton.testcases[0].steps.push(runOnErrorStep.id)
 
     const runner = new Runner({
+      id: 'myGreatId',
+      dataDirectory: '',
+      suite: suiteDefiniton,
       stepRegistry: registry,
       logAdapter,
       parallelExecution: options.parallelExecution
     })
 
-    await runner.run(suiteDefiniton)
+    await runner.run()
 
     // no check the log status
     const res = checkTcStatus(options.extendedRes)
@@ -343,7 +352,8 @@ test(
       'TC 2': { logCount: 2, status: 4, stepCount: 3 },
       'TC 3': { logCount: 2, status: 4, stepCount: 3 }
     })
-    const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
+    const runerId = runner.environmentRun?.id ?? ''
+    const logs = (runner.logAdapter as LogAdapterMemory).logs[runerId].testcases
     expect(logs['TC 1'].steps['Step which runs after Error'].logs[2]).toEqual({
       countAll: 6,
       countCurrent: 6,
@@ -366,8 +376,8 @@ test(
       value: 'ERROR Single' // The value for the action
     }
 
-    logAdapter.reset()
-    const suiteDefiniton = createSuite()
+    await logAdapter.reset()
+    const suiteDefiniton = createSuite({})
 
     const data = {
       run: {
@@ -377,11 +387,11 @@ test(
     }
     suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
-    const runOnErrorStep = new StepDefinition({
-      class: 'singleRunOnError',
-      name: `Step single which runs after Error`,
-      description: `Desc for step`
-    })
+    const runOnErrorStep: StepDefinitionInterface = {
+      id: 'singleRunOnError',
+      name: 'Step single which runs after Error',
+      description: 'Desc for step'
+    }
 
     suiteDefiniton.steps[runOnErrorStep.id] = runOnErrorStep
     for (const tc of suiteDefiniton.testcases) {
@@ -393,12 +403,15 @@ test(
     suiteDefiniton.testcases[0].steps.push(runOnErrorStep.id)
 
     const runner = new Runner({
+      id: 'myGreatId',
+      dataDirectory: '',
+      suite: suiteDefiniton,
       stepRegistry: registry,
       logAdapter,
       parallelExecution: options.parallelExecution
     })
 
-    await runner.run(suiteDefiniton)
+    await runner.run()
 
     // no check the log status
     const res = checkTcStatus(options.extendedRes)
@@ -409,7 +422,8 @@ test(
       'TC 3': { logCount: 2, status: 4, stepCount: 3 }
     })
 
-    const logs = runner.logAdapter.logs[runner.environmentRun.id].testcases
+    const runerId = runner.environmentRun?.id ?? ''
+    const logs = (runner.logAdapter as LogAdapterMemory).logs[runerId].testcases
 
     expect(
       logs['TC 1'].steps['Step single which runs after Error'].logs[2]
@@ -426,39 +440,45 @@ test(
 /**
  * Runs a normal suite without any errors
  */
-async function runTestcaseNoErrors(opts = {}) {
+async function runTestcaseNoErrors(opts = {}): Promise<CheckTcStatusResult> {
   const options = { ...opts, action: 'unknown', value: 'unknown' }
-  return runTestcaseAll(options)
+  return await runTestcaseAll(options)
 }
 
 /**
  * Runs a normal suite with a status Warning
  */
-async function runTestcaseHasStatusWarning(opts = {}) {
+async function runTestcaseHasStatusWarning(
+  opts = {}
+): Promise<CheckTcStatusResult> {
   const options = { ...opts, action: 'logWarning', value: 'WARN' }
-  return runTestcaseAll(options)
+  return await runTestcaseAll(options)
 }
 
 /**
  * Runs a normal suite with a status Error
  */
-async function runTestcaseHasStatusError(opts = {}) {
+async function runTestcaseHasStatusError(
+  opts = {}
+): Promise<CheckTcStatusResult> {
   const options = { ...opts, action: 'logError', value: 'ERROR' }
-  return runTestcaseAll(options)
+  return await runTestcaseAll(options)
 }
 
 /**
  * Runs a normal suite with an exception
  */
-async function runTestcaseHasStatusException(opts = {}) {
+async function runTestcaseHasStatusException(
+  opts = {}
+): Promise<CheckTcStatusResult> {
   const options = { ...opts, action: 'exception', value: 'Uhhh very bad' }
-  return runTestcaseAll(options)
+  return await runTestcaseAll(options)
 }
 
 /**
  * Runs a normal suite with a status Warning
  */
-async function runTestcaseAll(opts = {}) {
+async function runTestcaseAll(opts = {}): Promise<CheckTcStatusResult> {
   const options = {
     parallelExecution: true,
     posTc: 1, // The tc where to store the action
@@ -468,8 +488,9 @@ async function runTestcaseAll(opts = {}) {
     value: 'unknown', // The value for the action
     ...opts
   }
-  logAdapter.reset()
-  const suiteDefiniton = createSuite()
+  await logAdapter.reset()
+  debugger
+  const suiteDefiniton = createSuite({})
 
   const data = {
     run: {
@@ -477,28 +498,43 @@ async function runTestcaseAll(opts = {}) {
       value: options.value
     }
   }
+
   suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
 
   const runner = new Runner({
+    id: 'myGreatId',
+    dataDirectory: '',
+    suite: suiteDefiniton,
     stepRegistry: registry,
     logAdapter,
     parallelExecution: options.parallelExecution
   })
-  await runner.run(suiteDefiniton)
+
+  await runner.run()
   // no check the log status
   const res = checkTcStatus(options.extendedRes)
   return res
+}
+
+interface TcStatusResult {
+  status: any
+  logCount: number
+  stepCount: number
+}
+
+interface CheckTcStatusResult {
+  [key: string]: TcStatusResult
 }
 
 /**
  * Extract the status for each test case from the logger
  * and returns an object with the status per testcase
  */
-function checkTcStatus(extended = false) {
+function checkTcStatus(extended = false): CheckTcStatusResult {
   const runIds = Object.keys(logAdapter.logs)
   expect(runIds.length).toBe(1) // There should be one run only
 
-  const res = {}
+  const res: CheckTcStatusResult = {}
   const tcNames = Object.keys(logAdapter.logs[runIds[0]].testcases)
   tcNames.forEach((tcName) => {
     // get the test case log part

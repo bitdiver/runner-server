@@ -1,18 +1,20 @@
-import { StepNormal } from './StepNormal'
-import { StepType } from '@bitdiver/model'
+import { StepSingle, StepType } from '@bitdiver/model'
 import { StepOptions } from '@bitdiver/model/dist/src/interfaceStepOptions'
 
 /**
  * Simulates a single step. Dependend on the given step data the step
  * will cretae errors or will fail in one of the given methods
  */
-export class StepSingle extends StepNormal {
+export class StepSingleLocal extends StepSingle {
   constructor(opts: StepOptions) {
     super(opts)
     this.type = StepType.single
   }
 
   async _work(method: string): Promise<void> {
+    if (this.data === undefined) {
+      throw new Error('No Data defined')
+    }
     for (const dat of this.data) {
       if (dat[method] !== undefined) {
         // Ok there is an action defined for this method

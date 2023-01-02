@@ -34,6 +34,8 @@ import {
 
 import { ProgressMeterBatch } from './progress/ProgressMeterBatch'
 import { ProgressMeterNormal } from './progress/ProgressMeterNormal'
+import { StepSingleLocal } from '../tests/helper/StepSingle'
+import { StepNormal } from '../tests/helper/StepNormal'
 
 /** Defnes how the step instances are executed.  */
 type stepExecutionMethodType =
@@ -318,10 +320,10 @@ export class Runner {
       }
 
       if (step.type === StepType.single) {
+        const singleStep: StepSingleLocal = step as StepSingleLocal
         // Single Step
-        step.data = []
-        const envs: EnvironmentTestcase[] = []
-        step.environmentTestcase = envs
+        singleStep.data = []
+        singleStep.environmentTestcase = []
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
@@ -335,23 +337,24 @@ export class Runner {
           }
           this.progressMeterBatch.incTestcase(tcEnv.name)
 
-          if (tcEnv.running || step.runOnError) {
+          if (tcEnv.running || singleStep.runOnError) {
             const data = tc.data[i]
-            step.data.push(data)
-            step.environmentTestcase.push(tcEnv)
+            singleStep.data.push(data)
+            singleStep.environmentTestcase.push(tcEnv)
           }
         }
 
         // there is data or it runs without data
-        step.name = stepDefinition.name
-        step.description = stepDefinition.description
+        singleStep.name = stepDefinition.name
+        singleStep.description = stepDefinition.description
 
-        if (!this._shouldStopRun() || step.runOnError) {
+        if (!this._shouldStopRun() || singleStep.runOnError) {
           // OK the step should run
-          steps.push(step)
+          steps.push(singleStep)
         }
       } else {
         // Normal step
+        const normalStep: StepNormal = step as StepNormal
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
@@ -365,31 +368,31 @@ export class Runner {
           }
 
           const data = tc.data[i]
-          if ((data !== undefined && data !== null) || !step.needData) {
+          if ((data !== undefined && data !== null) || !normalStep.needData) {
             this.progressMeterBatch.incTestcase(tcEnv.name)
 
-            step.environmentTestcase = tcEnv
+            normalStep.environmentTestcase = tcEnv
             // only execute steps for testcases which not have failed
             if (
               (tcEnv.status < STATUS_ERROR && tcEnv.running) ||
-              (step.runOnError && tcEnv.status < STATUS_FATAL)
+              (normalStep.runOnError && tcEnv.status < STATUS_FATAL)
             ) {
-              step.countCurrent = i + 1
-              step.countAll = stepCount
-              step.name = stepDefinition.name
-              step.description = stepDefinition.description
-              step.data = data
+              normalStep.countCurrent = i + 1
+              normalStep.countAll = stepCount
+              normalStep.name = stepDefinition.name
+              normalStep.description = stepDefinition.description
+              normalStep.data = data
 
-              steps.push(step)
+              steps.push(normalStep)
             }
             // create a new step instance for the next testcase
             step = this.stepRegistry.getStep(stepDefinition.id)
-            step.name = stepDefinition.name
+            normalStep.name = stepDefinition.name
               ? stepDefinition.name
               : stepDefinition.id
-            step.testMode = this.testMode
-            step.logAdapter = this.logAdapter
-            step.environmentRun = this.environmentRun
+            normalStep.testMode = this.testMode
+            normalStep.logAdapter = this.logAdapter
+            normalStep.environmentRun = this.environmentRun
           } else {
             this.progressMeterBatch.incTestcase('')
           }

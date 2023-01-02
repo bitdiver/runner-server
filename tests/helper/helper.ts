@@ -7,7 +7,7 @@ import {
 } from '@bitdiver/definition'
 import { StepRegistry } from '@bitdiver/model'
 import { StepNormal } from './StepNormal'
-import { StepSingle } from './StepSingle'
+import { StepSingleLocal } from './StepSingle'
 import { StepSingleRunOnError } from './StepSingleRunOnError'
 import { StepRunOnError } from './StepRunOnError'
 
@@ -72,8 +72,8 @@ export function createSuite(
       }
     }
 
-    suite.steps[step.id] = step
-    stepIds.push(step.id)
+    suite.steps[step.name] = step
+    stepIds.push(step.name)
   }
 
   // -------------------------------
@@ -105,7 +105,7 @@ export function createSuite(
 export function createRegistry(): StepRegistry {
   const stepRegistry = new StepRegistry()
   stepRegistry.registerStep({ stepName: 'normal', step: StepNormal })
-  stepRegistry.registerStep({ stepName: 'single', step: StepSingle })
+  stepRegistry.registerStep({ stepName: 'single', step: StepSingleLocal })
   stepRegistry.registerStep({ stepName: 'runOnError', step: StepRunOnError })
   stepRegistry.registerStep({
     stepName: 'singleRunOnError',
