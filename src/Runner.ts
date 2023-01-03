@@ -249,7 +249,7 @@ export class Runner {
         step.countCurrent = stepCounter + 1
         step.countAll = stepCountTc
         step.testMode = this.testMode
-        step.logAdapter = this.logAdapter
+        step.logAdapter = this as unknown as LogAdapterInterface
         step.environmentRun = this.environmentRun
 
         const tcEnvId = this.environmentTestcaseIds[tcCounter]
@@ -322,7 +322,7 @@ export class Runner {
         singleStep.countCurrent = stepCounter + 1
         singleStep.countAll = stepCount
         singleStep.testMode = this.testMode
-        singleStep.logAdapter = this.logAdapter
+        singleStep.logAdapter = this as unknown as LogAdapterInterface
         singleStep.environmentRun = this.environmentRun
         singleStep.data = []
 
@@ -365,7 +365,7 @@ export class Runner {
           normalStep.countCurrent = stepCounter + 1
           normalStep.countAll = stepCount
           normalStep.testMode = this.testMode
-          normalStep.logAdapter = this.logAdapter
+          normalStep.logAdapter = this as unknown as LogAdapterInterface
           normalStep.environmentRun = this.environmentRun
 
           const tc = this.testcases[tcCounter]
@@ -698,6 +698,7 @@ export class Runner {
    * @param logMessage - The data to be logged
    */
   public async log(logMessage: any): Promise<void> {
+    debugger
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -803,6 +804,7 @@ export class Runner {
     if (this.environmentRun === undefined) {
       throw new Error('The EnvironmentRun is undefined')
     }
+    debugger
     await generateLogs({
       environmentRun: this.environmentRun,
       environmentTestcase,

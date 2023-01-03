@@ -77,7 +77,7 @@ test(
   TIMEOUT
 )
 
-test.only(
+test(
   'Run test case with status warning (Parallel Execution)',
   async () => {
     const res = await runTestcaseHasStatusWarning({ parallelExecution: true })
@@ -489,7 +489,7 @@ async function runTestcaseAll(opts = {}): Promise<CheckTcStatusResult> {
     ...opts
   }
   await logAdapter.reset()
-  debugger
+
   const suiteDefiniton = createSuite({})
 
   const data = {
@@ -512,6 +512,7 @@ async function runTestcaseAll(opts = {}): Promise<CheckTcStatusResult> {
   debugger
   await runner.run()
   // no check the log status
+  debugger
   const res = checkTcStatus(options.extendedRes)
   return res
 }

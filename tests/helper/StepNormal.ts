@@ -63,7 +63,6 @@ export class StepNormal extends StepBase {
     if (this.data[method] !== undefined) {
       // Ok there is an action defined for this method
       if (this.data[method].action !== undefined) {
-        debugger
         action = this.data[method].action
       }
       if (this.data[method].value !== undefined) {
@@ -92,8 +91,8 @@ export class StepNormal extends StepBase {
     if (action === 'logInfo') {
       await this.logInfo(value)
     } else if (action === 'logWarning') {
+      debugger
       await this.logWarning(value)
-      console.log('gumbo')
     } else if (action === 'logError') {
       await this.logError(value)
     } else if (action === 'logFatal') {
