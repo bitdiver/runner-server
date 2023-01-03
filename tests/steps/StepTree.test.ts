@@ -49,6 +49,8 @@ test.each(TESTS)('$name', async ({ inputFile, expectedFile }) => {
     stepTree.add(stepNames)
   }
 
+  stepTree.setLongestPathToRootForAllNodes()
+
   const graph = createStepTreeGraph(stepTree.nodeTree)
 
   await fs.promises.writeFile(fileGraphOut, graph, 'utf8')

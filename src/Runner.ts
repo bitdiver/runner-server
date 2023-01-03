@@ -36,6 +36,8 @@ import { ProgressMeterBatch } from './progress/ProgressMeterBatch'
 import { ProgressMeterNormal } from './progress/ProgressMeterNormal'
 import { StepSingleLocal } from '../tests/helper/StepSingle'
 import { StepNormal } from '../tests/helper/StepNormal'
+import { StepTree } from './steps/StepTree'
+import { StepSorter } from './steps/StepSorter'
 
 /** Defnes how the step instances are executed.  */
 type stepExecutionMethodType =
@@ -187,7 +189,7 @@ export class Runner {
   /**
    * Executes the Suite
    */
-  async run(): Promise<void> {
+  public async run(): Promise<void> {
     const stepCount = Object.keys(this.steps).length
     const testcaseCount = this.testcases.length
     this.progressMeterBatch.init({
@@ -212,7 +214,7 @@ export class Runner {
    * @param opts - Options for the execution.
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
-  async _doRunNormal(): Promise<void> {
+  protected async _doRunNormal(): Promise<void> {
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -235,7 +237,7 @@ export class Runner {
       const tc = this.testcases[tcCounter]
       const stepCountTc = tc.steps.length // the count of steps in this test case
 
-      // iterate stepsn of this particular test case
+      // iterate steps of this particular test case
       for (let stepCounter = 0; stepCounter < stepCountTc; stepCounter++) {
         const stepId = tc.steps[stepCounter]
         const stepDefinition = this.steps[stepId]
@@ -273,7 +275,7 @@ export class Runner {
    * @param opts - Options for the execution.
    *        testmode=(true/false) Defines if the suite should be executed in testmode or not
    */
-  async _doRunBatch(): Promise<void> {
+  protected async _doRunBatch(): Promise<void> {
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -284,38 +286,33 @@ export class Runner {
     const stepCount = Object.keys(this.steps).length
     await this._logStartRun({ testCaseCount: this.testcases.length, stepCount })
 
-    // To get the step ids we need the testcase with the longest array of step ids
-    let stepIds: string[] = []
-    this.testcases.forEach((tc) => {
-      if (tc.steps.length > stepIds.length) {
-        stepIds = tc.steps
-      }
-    })
+    // To get all the step Ids we need to get alle the steps of each test case
+    const stepIds = this.getAllStepIdsForBatchMode()
 
     // first iterate the steps and then the testscases
-    for (let i = 0; i < stepIds.length; i++) {
+    for (let stepCounter = 0; stepCounter < stepIds.length; stepCounter++) {
       // if (this._shouldStopRun()) {
       //   // OK we can stop the run here
       //   break
       // }
 
-      if (i > 0) {
+      if (stepCounter > 0) {
         this.progressMeterBatch.startOverTestcase()
       }
 
-      const stepId = stepIds[i]
+      const stepId = stepIds[stepCounter]
       const stepDefinition = this.steps[stepId]
 
       const steps = []
       let step = this.stepRegistry.getStep(stepDefinition.id)
       step.name = stepDefinition.name ? stepDefinition.name : stepDefinition.id
-      step.countCurrent = i + 1
+      step.countCurrent = stepCounter + 1
       step.countAll = stepCount
       step.testMode = this.testMode
       step.logAdapter = this.logAdapter
       step.environmentRun = this.environmentRun
 
-      if (i > 0) {
+      if (stepCounter > 0) {
         this.progressMeterBatch.incStep(stepDefinition.name)
       }
 
@@ -338,7 +335,7 @@ export class Runner {
           this.progressMeterBatch.incTestcase(tcEnv.name)
 
           if (tcEnv.running || singleStep.runOnError) {
-            const data = tc.data[i]
+            const data = tc.data[stepCounter]
             singleStep.data.push(data)
             singleStep.environmentTestcase.push(tcEnv)
           }
@@ -367,7 +364,7 @@ export class Runner {
             throw new Error('The test case Environment could not be found')
           }
 
-          const data = tc.data[i]
+          const data = tc.data[stepCounter]
           if ((data !== undefined && data !== null) || !normalStep.needData) {
             this.progressMeterBatch.incTestcase(tcEnv.name)
 
@@ -377,7 +374,7 @@ export class Runner {
               (tcEnv.status < STATUS_ERROR && tcEnv.running) ||
               (normalStep.runOnError && tcEnv.status < STATUS_FATAL)
             ) {
-              normalStep.countCurrent = i + 1
+              normalStep.countCurrent = stepCounter + 1
               normalStep.countAll = stepCount
               normalStep.name = stepDefinition.name
               normalStep.description = stepDefinition.description
@@ -412,11 +409,21 @@ export class Runner {
     await this._logEndRun(this._getRunStatus())
   }
 
+  protected getAllStepIdsForBatchMode(): string[] {
+    const stepTree = new StepTree()
+
+    this.testcases.forEach((tc) => {
+      stepTree.add(tc.steps)
+    })
+    const stepSorter = new StepSorter(stepTree)
+    return stepSorter.getSteps()
+  }
+
   /**
    * Computes the status of this run and returns an object with the detail information
    * @returns status - An object with the status summary of this run
    */
-  _getRunStatus(): any {
+  protected _getRunStatus(): any {
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -455,7 +462,7 @@ export class Runner {
   /**
    * ends all the testcases and writes the status to the logger
    */
-  async _closeTestcases(): Promise<void> {
+  protected async _closeTestcases(): Promise<void> {
     if (
       this.environmentRun === undefined ||
       this.environmentTestcaseIds === undefined ||
@@ -486,7 +493,7 @@ export class Runner {
    * @param stepInstances - An array of loaded steps to be executed
    *  The instances are the instances per testcase for one real step
    */
-  async _executeSteps(stepInstances: StepBase[]): Promise<void> {
+  protected async _executeSteps(stepInstances: StepBase[]): Promise<void> {
     await this[this.stepExecutionMethod](stepInstances, ['start'])
     await this[this.stepExecutionMethod](stepInstances, [
       'beforeRun',
@@ -503,7 +510,7 @@ export class Runner {
    * @param methods - An array of methods which should be executed on each step instance.
    *                        The methods will be executed in the given order
    */
-  async _executeStepMethodParallel(
+  protected async _executeStepMethodParallel(
     stepInstances: StepBase[],
     methods: any[]
   ): Promise<void> {
@@ -529,7 +536,7 @@ export class Runner {
    * This method build a promise which executes the given methods in
    * the given order
    */
-  async _getMethodPromise(
+  protected async _getMethodPromise(
     stepInstance: StepBase,
     methods: string[]
   ): Promise<void> {
@@ -567,7 +574,7 @@ export class Runner {
    * @param methods - An array of methods which should be executed on each step instance.
    *                        The methods will be executed in the given order
    */
-  async _executeStepMethodOrdered(
+  protected async _executeStepMethodOrdered(
     stepInstances: StepBase[],
     methods: string[]
   ): Promise<void> {
@@ -587,7 +594,7 @@ export class Runner {
    * Creates the run environment ans all the testcase environments
    * @param suite - The suite definition to be executed
    */
-  _createEnvironments(suite: SuiteDefinitionInterface): void {
+  protected _createEnvironments(suite: SuiteDefinitionInterface): void {
     this.environmentTestcaseIds = []
     this.environmentTestcaseMap = new Map()
 
@@ -618,7 +625,7 @@ export class Runner {
   /**
    * Logs the start of a run
    */
-  async _logStartRun(opts = {}): Promise<void> {
+  protected async _logStartRun(opts = {}): Promise<void> {
     if (this.environmentRun === undefined) {
       throw new Error('The EnvironmentRun is undefined')
     }
@@ -638,7 +645,7 @@ export class Runner {
   /**
    * Logs the end of a run
    */
-  async _logEndRun(opts = {}): Promise<void> {
+  protected async _logEndRun(opts = {}): Promise<void> {
     if (this.environmentRun === undefined) {
       throw new Error('The EnvironmentRun is undefined')
     }
@@ -661,7 +668,7 @@ export class Runner {
    * @param logLevel - The loglevel to be converted
    * @returns status - The status
    */
-  _getStatusForLoglevel(logeLevel: string): number {
+  protected _getStatusForLoglevel(logeLevel: string): number {
     if (logeLevel === LEVEL_WARNING) {
       return STATUS_WARNING
     } else if (logeLevel === LEVEL_ERROR) {
@@ -678,7 +685,7 @@ export class Runner {
    * @param stepInstance - The step object
    * @param err - The error caused by the step
    */
-  async setStepFail(
+  public async setStepFail(
     stepInstance: StepBase,
     err: any = 'Unknown Message: Empty error from step execution'
   ): Promise<void> {
@@ -694,7 +701,7 @@ export class Runner {
    * format.
    * @param logMessage - The data to be logged
    */
-  async log(logMessage: any): Promise<void> {
+  public async log(logMessage: any): Promise<void> {
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -732,7 +739,7 @@ export class Runner {
    * @param messageObj - The data to be logged
    * @param status - The Status of this message. Defaul is ERROR
    */
-  async setTestcaseFail(
+  public async setTestcaseFail(
     environmentTestcase: EnvironmentTestcase,
     messageObj: any,
     status = STATUS_ERROR
@@ -772,7 +779,7 @@ export class Runner {
    * @param status - The Status of this message. Defaul is ERROR
    */
 
-  async setRunFail(
+  public async setRunFail(
     messageObj: any,
     status: number = STATUS_ERROR
   ): Promise<void> {
@@ -794,7 +801,7 @@ export class Runner {
    * Writes a test case status message for the given test case
    * @param environmentTestcase - The test case environment
    */
-  async _logTestcaseStatus(
+  protected async _logTestcaseStatus(
     environmentTestcase: EnvironmentTestcase
   ): Promise<void> {
     if (this.environmentRun === undefined) {
@@ -817,7 +824,7 @@ export class Runner {
    * If no return true
    * @returns shouldStop - true, if the suite should be stopped
    */
-  _shouldStopRun(): boolean {
+  protected _shouldStopRun(): boolean {
     if (
       this.environmentRun === undefined ||
       this.environmentTestcaseMap === undefined

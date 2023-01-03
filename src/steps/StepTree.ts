@@ -32,6 +32,7 @@ export class StepTree {
     // create a start node with no elements
     this.nodeTree = createEmptyNode('', true)
     this.nodeMap = new Map<string, Node>()
+    this.nodeMap.set(this.nodeTree.stepName, this.nodeTree)
   }
 
   /**
@@ -201,7 +202,6 @@ function deleteConnection(source: Node, target: Node): void {
   source.outgoing.delete(target.stepName)
   target.incomming.delete(source.stepName)
 }
-
 
 /**
  * Checks if the stepName is already connected. Not only with the last node, also
