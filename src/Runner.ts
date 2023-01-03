@@ -521,10 +521,10 @@ export class Runner {
       maxParallelSteps = stepInstances[0].maxParallelSteps
     }
 
-    const promiseFunctions = []
+    const promiseFunctions: Array<pAll.PromiseFactory<void>> = []
     for (const stepInstance of stepInstances) {
       promiseFunctions.push(
-        async () => await this._getMethodPromise(stepInstance, methods)
+        this._getMethodPromiseFunction(stepInstance, methods)
       )
     }
     await pAll(promiseFunctions, { concurrency: maxParallelSteps })
@@ -532,29 +532,34 @@ export class Runner {
 
   /**
    * Submethod of _executeStepMethodParallel
-   * This method build a promise which executes the given methods in
+   * This method builds a promise which executes the given methods in
    * the given order
    */
-  protected async _getMethodPromise(
+  protected _getMethodPromiseFunction(
     stepInstance: StepBase,
     methods: string[]
-  ): Promise<void> {
-    const asyncArray = []
+  ): pAll.PromiseFactory<void> {
+    const asyncArray: Function[] = []
 
     for (const method of methods) {
       asyncArray.push(async () => {
-        await stepInstance.logInfo(`Step ${method}`)
+        // eslint-disable-next-line  @typescript-eslint/return-await
+        return stepInstance.logInfo(`Step ${method}`)
       })
 
       asyncArray.push(async () => {
-        stepInstance[method as keyof StepBase]().catch(async (err: any) => {
-          await this.setStepFail(stepInstance, err)
-        })
+        try {
+          await stepInstance[method as keyof StepBase]()
+        } catch (error) {
+          await this.setStepFail(stepInstance, error)
+        }
       })
     }
 
-    for (const functionPromise of asyncArray) {
-      await functionPromise()
+    return async () => {
+      for (const func of asyncArray) {
+        await func()
+      }
     }
   }
 

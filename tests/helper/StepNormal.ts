@@ -63,6 +63,7 @@ export class StepNormal extends StepBase {
     if (this.data[method] !== undefined) {
       // Ok there is an action defined for this method
       if (this.data[method].action !== undefined) {
+        debugger
         action = this.data[method].action
       }
       if (this.data[method].value !== undefined) {
@@ -81,21 +82,22 @@ export class StepNormal extends StepBase {
       throw new Error(value)
     }
 
-    return await new Promise((resolve) => {
+    await new Promise((resolve) => {
       const time = Math.floor(Math.random() * (max - min)) + min
       setTimeout(() => {
-        if (action === 'logInfo') {
-          resolve(this.logInfo(value))
-        } else if (action === 'logWarning') {
-          resolve(this.logWarning(value))
-        } else if (action === 'logError') {
-          resolve(this.logError(value))
-        } else if (action === 'logFatal') {
-          resolve(this.logFatal(value))
-        }
-
-        resolve()
+        resolve('')
       }, time)
     })
+
+    if (action === 'logInfo') {
+      await this.logInfo(value)
+    } else if (action === 'logWarning') {
+      await this.logWarning(value)
+      console.log('gumbo')
+    } else if (action === 'logError') {
+      await this.logError(value)
+    } else if (action === 'logFatal') {
+      await this.logFatal(value)
+    }
   }
 }
