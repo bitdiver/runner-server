@@ -304,23 +304,28 @@ export class Runner {
       const stepDefinition = this.steps[stepId]
 
       const steps = []
-      let step = this.stepRegistry.getStep(stepDefinition.id)
-      step.name = stepDefinition.name ? stepDefinition.name : stepDefinition.id
-      step.countCurrent = stepCounter + 1
-      step.countAll = stepCount
-      step.testMode = this.testMode
-      step.logAdapter = this.logAdapter
-      step.environmentRun = this.environmentRun
+      const step = this.stepRegistry.getStep(stepDefinition.id)
+      step.name = stepDefinition.name // used for logging, if no instance is created
 
       if (stepCounter > 0) {
         this.progressMeterBatch.incStep(stepDefinition.name)
       }
 
       if (step.type === StepType.single) {
-        const singleStep: StepSingleLocal = step as StepSingleLocal
         // Single Step
-        singleStep.data = []
+        const singleStep: StepSingleLocal = this.stepRegistry.getStep(
+          stepDefinition.id
+        ) as StepSingleLocal
+        singleStep.name = stepDefinition.name
+        singleStep.description = stepDefinition.description
         singleStep.environmentTestcase = []
+        singleStep.countCurrent = stepCounter + 1
+        singleStep.countAll = stepCount
+        singleStep.testMode = this.testMode
+        singleStep.logAdapter = this.logAdapter
+        singleStep.environmentRun = this.environmentRun
+        singleStep.data = []
+
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
@@ -341,22 +346,28 @@ export class Runner {
           }
         }
 
-        // there is data or it runs without data
-        singleStep.name = stepDefinition.name
-        singleStep.description = stepDefinition.description
-
         if (!this._shouldStopRun() || singleStep.runOnError) {
           // OK the step should run
           steps.push(singleStep)
         }
       } else {
         // Normal step
-        const normalStep: StepNormal = step as StepNormal
         for (
           let tcCounter = 0;
           tcCounter < this.testcases.length;
           tcCounter++
         ) {
+          const normalStep: StepNormal = this.stepRegistry.getStep(
+            stepDefinition.id
+          ) as StepNormal
+          normalStep.name = stepDefinition.name
+          normalStep.description = stepDefinition.description
+          normalStep.countCurrent = stepCounter + 1
+          normalStep.countAll = stepCount
+          normalStep.testMode = this.testMode
+          normalStep.logAdapter = this.logAdapter
+          normalStep.environmentRun = this.environmentRun
+
           const tc = this.testcases[tcCounter]
           const tcEnvId = this.environmentTestcaseIds[tcCounter]
           const tcEnv = this.environmentTestcaseMap.get(tcEnvId)
@@ -374,22 +385,10 @@ export class Runner {
               (tcEnv.status < STATUS_ERROR && tcEnv.running) ||
               (normalStep.runOnError && tcEnv.status < STATUS_FATAL)
             ) {
-              normalStep.countCurrent = stepCounter + 1
-              normalStep.countAll = stepCount
-              normalStep.name = stepDefinition.name
-              normalStep.description = stepDefinition.description
               normalStep.data = data
 
               steps.push(normalStep)
             }
-            // create a new step instance for the next testcase
-            step = this.stepRegistry.getStep(stepDefinition.id)
-            normalStep.name = stepDefinition.name
-              ? stepDefinition.name
-              : stepDefinition.id
-            normalStep.testMode = this.testMode
-            normalStep.logAdapter = this.logAdapter
-            normalStep.environmentRun = this.environmentRun
           } else {
             this.progressMeterBatch.incTestcase('')
           }
@@ -555,16 +554,8 @@ export class Runner {
     }
 
     for (const functionPromise of asyncArray) {
-      try {
-        await functionPromise
-      } catch (e) {
-        // do nothing
-      }
+      await functionPromise()
     }
-
-    // await asyncArray.reduce(async (prev, curr) => {
-    //   return await prev.then(curr)
-    // }, Promise.resolve(1))
   }
 
   /**
