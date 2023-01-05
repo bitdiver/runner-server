@@ -1,0 +1,35 @@
+== Usage
+
+First create a runner. 
+
+[source,ts]
+----
+const runner = new Runner({
+    id: 'run_2022-03-01 15:20:12',  <1>
+    dataDirectory: 'var/tdg',       <2>
+    stepRegistry: registry,         <3>
+    logAdapter: logAdapterFile,     <4>
+    suite: suiteDefiniton           <5>
+    executionMode: 'batch'          <6>
+    parallelExecution: true,        <7>
+ })
+----
+<1> Any string identifying the run. Is only used for logging
+<2> The Directory where the data is located. 
+<3> This registry provides all the step instances referenced by the suite
+<4> The logadapter used to write the logs
+<5> The suite defines the test casesand the steps which should be executed
+<6> The execution mode. 'batch' or 'normal'
+<7> For each test case one step instance with the data for the particular test case
+is created. If this is set tu true, the instances are executed in paralell. If set to 
+false the instance are executed in the order of the test cases.
+
+
+After the runner is created the test could be executed.
+
+[source,ts]
+----
+await runner.run()
+----
+
+This will execute the tests
