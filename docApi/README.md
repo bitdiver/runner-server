@@ -1,4 +1,4 @@
-@bitdiver/runner-server / [Exports](docApi/modules.md)
+@bitdiver/runner-server / [Exports](modules.md)
 
 # Runner Server
 
@@ -10,12 +10,12 @@ firts step for all the test cases and then the next step.
 Excution mode "normal"  
 The following pictures shows the test execution for a normal flow:
 
-![ExecutionNormal](doc/images/ExecutionNormal.svg)
+![ExecutionNormal](images/ExecutionNormal.svg)
 
 Excution mode "paralell"  
 In this mode it first executes the first step for all the test cases.
 
-![ExecutionParalell](doc/images/ExecutionParalell.svg)
+![ExecutionParalell](images/ExecutionParalell.svg)
 
 This mode has a special feature for steps affects all tests. Lets assume
 there is a step which clears the data base. This will affect all test
@@ -23,7 +23,7 @@ cases. For these kind of steps there is something called 'SingleStep'.
 
 The following pictures shows a 'SingleStep' for step 3.
 
-![ExecutionParalellSingleStep](doc/images/ExecutionParalellSingleStep.svg)
+![ExecutionParalellSingleStep](images/ExecutionParalellSingleStep.svg)
 
 ## Why do I need this?
 
