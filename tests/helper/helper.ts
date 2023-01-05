@@ -6,10 +6,11 @@ import {
   StepDefinitionInterface
 } from '@bitdiver/definition'
 import { StepRegistry } from '@bitdiver/model'
-import { StepNormal } from './StepNormal'
-import { StepSingleLocal } from './StepSingle'
+import { StepNormalLocal } from './StepNormalLocal'
+import { StepSingleLocal } from './StepSingleLocal'
 import { StepSingleRunOnError } from './StepSingleRunOnError'
 import { StepRunOnError } from './StepRunOnError'
+import { StepTestQueue } from './StepTestQueue'
 
 const DEFAULT_TC_COUNT = 3
 const DEFAULT_STEP_COUNT = 5
@@ -104,9 +105,10 @@ export function createSuite(
  */
 export function createRegistry(): StepRegistry {
   const stepRegistry = new StepRegistry()
-  stepRegistry.registerStep({ stepName: 'normal', step: StepNormal })
+  stepRegistry.registerStep({ stepName: 'normal', step: StepNormalLocal })
   stepRegistry.registerStep({ stepName: 'single', step: StepSingleLocal })
   stepRegistry.registerStep({ stepName: 'runOnError', step: StepRunOnError })
+  stepRegistry.registerStep({ stepName: 'timerStep', step: StepTestQueue })
   stepRegistry.registerStep({
     stepName: 'singleRunOnError',
     step: StepSingleRunOnError

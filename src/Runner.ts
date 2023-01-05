@@ -29,13 +29,13 @@ import {
   StepBase,
   StepRegistry,
   StepType,
-  DIR_BASE_DATA
+  DIR_BASE_DATA,
+  StepNormal,
+  StepSingle
 } from '@bitdiver/model'
 
 import { ProgressMeterBatch } from './progress/ProgressMeterBatch'
 import { ProgressMeterNormal } from './progress/ProgressMeterNormal'
-import { StepSingleLocal } from '../tests/helper/StepSingle'
-import { StepNormal } from '../tests/helper/StepNormal'
 import { StepTree } from './steps/StepTree'
 import { StepSorter } from './steps/StepSorter'
 
@@ -311,9 +311,9 @@ export class Runner {
 
       if (step.type === StepType.single) {
         // Single Step
-        const singleStep: StepSingleLocal = this.stepRegistry.getStep(
+        const singleStep: StepSingle = this.stepRegistry.getStep(
           stepDefinition.id
-        ) as StepSingleLocal
+        ) as StepSingle
         singleStep.name = stepDefinition.name
         singleStep.description = stepDefinition.description
         singleStep.environmentTestcase = []

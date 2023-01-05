@@ -78,7 +78,6 @@ export class ProgressMeterBatch {
     this.lastStepName = ''
     this.currentTestcaseName = ''
     this.currentStepName = ''
-    this.update()
   }
 
   /**

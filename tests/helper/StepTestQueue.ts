@@ -1,8 +1,12 @@
-export class StepTestQueue {
+import { StepBase } from '@bitdiver/model'
+
+export class StepTestQueue extends StepBase {
   name: string
   tcName: string
   console: boolean = false
+
   constructor(opts: { name: string; tcName: string; console?: boolean }) {
+    super(opts)
     this.name = opts.name
     this.tcName = opts.tcName
     this.console = opts.console ?? false
@@ -42,10 +46,7 @@ export class StepTestQueue {
    * This method will be called just before the run method
    */
   async run(): Promise<void> {
-    return await new Promise((resolve) => {
-      // const min = 5
-      // const max = 100
-      // const time = Math.floor(Math.random() * (max - min)) + min
+    await new Promise<void>((resolve) => {
       const time = 4000
       setTimeout(() => {
         this.logMe(
@@ -53,7 +54,6 @@ export class StepTestQueue {
             this.tcName
           } at ${new Date()} method: 'run'`
         )
-
         resolve()
       }, time)
     })

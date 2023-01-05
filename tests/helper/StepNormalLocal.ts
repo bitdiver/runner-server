@@ -1,4 +1,4 @@
-import { StepBase } from '@bitdiver/model'
+import { StepNormal } from '@bitdiver/model'
 
 /**
  * Simulates a normal step. Dependend on the given step data the step
@@ -18,7 +18,7 @@ import { StepBase } from '@bitdiver/model'
  *   \}
  * \}
  */
-export class StepNormal extends StepBase {
+export class StepNormalLocal extends StepNormal {
   /**
    * This method will be called when the step starts.
    */

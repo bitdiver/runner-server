@@ -83,64 +83,54 @@
   ],
   "steps": {
     "StepId_1": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 1",
-      "description": "Desc 1",
-      "id": "StepId_1"
+      "description": "Desc 1"
     },
     "StepId_2": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 2",
-      "description": "Desc 2",
-      "id": "StepId_2"
+      "description": "Desc 2"
     },
     "StepId_3": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 3",
-      "description": "Desc 3",
-      "id": "StepId_3"
+      "description": "Desc 3"
     },
     "StepId_4": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 4",
-      "description": "Desc 4",
-      "id": "StepId_4"
+      "description": "Desc 4"
     },
     "StepId_5": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 5",
-      "description": "Desc 5",
-      "id": "StepId_5"
+      "description": "Desc 5"
     },
     "StepId_6": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 6",
-      "description": "Desc 6",
-      "id": "StepId_6"
+      "description": "Desc 6"
     },
     "StepId_7": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 7",
-      "description": "Desc 7",
-      "id": "StepId_7"
+      "description": "Desc 7"
     },
     "StepId_8": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 8",
-      "description": "Desc 8",
-      "id": "StepId_8"
+      "description": "Desc 8"
     },
     "StepId_9": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 9",
-      "description": "Desc 9",
-      "id": "StepId_9"
+      "description": "Desc 9"
     },
     "StepId_10": {
-      "class": "normal",
+      "id": "normal",
       "name": "Step 10",
-      "description": "Desc 10",
-      "id": "StepId_10"
+      "description": "Desc 10"
     }
   },
   "executionMode": "normal"

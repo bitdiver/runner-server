@@ -1,1 +1,4 @@
 == Runner Server
+This runner is executing the tests. There are two general execution modes.
+In the normal mode it will executes the first test case with all its steps. Then the next test case.
+In the parallel mode it executes the firts step for all the test cases and then the next step
