@@ -192,12 +192,12 @@ export class Runner {
   public async run(): Promise<void> {
     const stepCount = Object.keys(this.steps).length
     const testcaseCount = this.testcases.length
+    this.progressMeterBatch.clear()
     this.progressMeterBatch.init({
       testcaseCount,
       stepCount,
       name: this.name
     })
-    this.progressMeterBatch.clear()
 
     if (this.executionMode === EXECUTION_MODE_BATCH) {
       await this._doRunBatch()
@@ -307,9 +307,7 @@ export class Runner {
       const step = this.stepRegistry.getStep(stepDefinition.id)
       step.name = stepDefinition.name // used for logging, if no instance is created
 
-      if (stepCounter > 0) {
-        this.progressMeterBatch.incStep(stepDefinition.name)
-      }
+      this.progressMeterBatch.incStep(stepDefinition.name)
 
       if (step.type === StepType.single) {
         // Single Step
@@ -698,7 +696,6 @@ export class Runner {
    * @param logMessage - The data to be logged
    */
   public async log(logMessage: any): Promise<void> {
-    debugger
     if (
       this.environmentTestcaseIds === undefined ||
       this.environmentTestcaseMap === undefined
@@ -804,7 +801,6 @@ export class Runner {
     if (this.environmentRun === undefined) {
       throw new Error('The EnvironmentRun is undefined')
     }
-    debugger
     await generateLogs({
       environmentRun: this.environmentRun,
       environmentTestcase,

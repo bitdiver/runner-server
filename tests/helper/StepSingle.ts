@@ -11,7 +11,46 @@ export class StepSingleLocal extends StepSingle {
     this.type = StepType.single
   }
 
+  /**
+   * This method will be called when the step starts.
+   */
+  async start(): Promise<void> {
+    await this._work('start')
+  }
+
+  /**
+   * This method will be called just before the run method
+   */
+  async beforeRun(): Promise<void> {
+    await this._work('beforeRun')
+  }
+
+  /**
+   * This method will be called just before the run method
+   */
+  async run(): Promise<void> {
+    await this._work('run')
+  }
+
+  /**
+   * This method will be called just after the run is finished
+   */
+  async afterRun(): Promise<void> {
+    await this._work('afterRun')
+  }
+
+  /**
+   * This method will be called when the step is finished
+   */
+  async end(): Promise<void> {
+    await this._work('end')
+  }
+
   async _work(method: string): Promise<void> {
+    const min = 5
+    const max = 100
+    const time = Math.floor(Math.random() * (max - min)) + min
+
     if (this.data === undefined) {
       throw new Error('No Data defined')
     }
@@ -34,15 +73,10 @@ export class StepSingleLocal extends StepSingle {
         }
       }
     }
-    return await new Promise((resolve) => {
-      const min = 5
-      const max = 100
-      const time = Math.floor(Math.random() * (max - min)) + min
+
+    await new Promise((resolve) => {
       setTimeout(() => {
-        // console.log(
-        //   `Execute Single Step '${this.name}' with method '${method}''`
-        // )
-        resolve()
+        resolve('')
       }, time)
     })
   }

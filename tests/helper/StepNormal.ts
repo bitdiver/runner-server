@@ -91,7 +91,6 @@ export class StepNormal extends StepBase {
     if (action === 'logInfo') {
       await this.logInfo(value)
     } else if (action === 'logWarning') {
-      debugger
       await this.logWarning(value)
     } else if (action === 'logError') {
       await this.logError(value)

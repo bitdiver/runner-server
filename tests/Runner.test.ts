@@ -239,8 +239,6 @@ test(
       value: 'ERROR Single' // The value for the action
     })
 
-    // await logAdapter.writeFile('log/runlog.json')
-
     expect(res).toEqual({
       'TC 1': {
         logCount: 2,
@@ -500,7 +498,6 @@ async function runTestcaseAll(opts = {}): Promise<CheckTcStatusResult> {
   }
 
   suiteDefiniton.testcases[options.posTc].data[options.posStep] = data
-
   const runner = new Runner({
     id: 'myGreatId',
     dataDirectory: '',
@@ -509,10 +506,9 @@ async function runTestcaseAll(opts = {}): Promise<CheckTcStatusResult> {
     logAdapter,
     parallelExecution: options.parallelExecution
   })
-  debugger
+
   await runner.run()
   // no check the log status
-  debugger
   const res = checkTcStatus(options.extendedRes)
   return res
 }

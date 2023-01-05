@@ -1,0 +1,237 @@
+[
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 0
+      },
+      "data": {
+        "Execute suite": "test suite 1",
+        "Total step count": "30",
+        "Total test case count": "30"
+      }
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 1
+      },
+      "data": "1/30 Step normal 1"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 2
+      },
+      "data": "2/30 Step normal 2"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 3
+      },
+      "data": "3/30 Step normal 3"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 4
+      },
+      "data": "4/30 Step single 4"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 5
+      },
+      "data": "5/30 Step normal 5"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 6
+      },
+      "data": "6/30 Step normal 6"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 7
+      },
+      "data": "7/30 Step normal 7"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 8
+      },
+      "data": "8/30 Step single 8"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 9
+      },
+      "data": "9/30 Step normal 9"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 10
+      },
+      "data": "10/30 Step normal 10"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 11
+      },
+      "data": "11/30 Step single 11"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 12
+      },
+      "data": "12/30 Step normal 12"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 13
+      },
+      "data": "13/30 Step normal 13"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 14
+      },
+      "data": "14/30 Step normal 14"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 15
+      },
+      "data": "15/30 Step normal 15"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 16
+      },
+      "data": "16/30 Step normal 16"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 17
+      },
+      "data": "17/30 Step normal 17"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 18
+      },
+      "data": "18/30 Step normal 18"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 19
+      },
+      "data": "19/30 Step normal 19"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 20
+      },
+      "data": "20/30 Step normal 20"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 21
+      },
+      "data": "21/30 Step normal 21"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 22
+      },
+      "data": "22/30 Step normal 22"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 23
+      },
+      "data": "23/30 Step single 23"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 24
+      },
+      "data": "24/30 Step normal 24"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 25
+      },
+      "data": "25/30 Step normal 25"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 26
+      },
+      "data": "26/30 Step normal 26"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 27
+      },
+      "data": "27/30 Step normal 27"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 28
+      },
+      "data": "28/30 Step single 28"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 29
+      },
+      "data": "29/30 Step normal 29"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 30
+      },
+      "data": "30/30 Step normal 30"
+    },
+    {
+      "meta": {
+        "logTyp": "ProgressBarConsole",
+        "sequence": 31
+      },
+      "data": {
+        "Result for suite": "test suite 1",
+        "Steps": "30/30",
+        "Testcase": "30/30",
+        "Failed": "0",
+        "Last step": "Step normal 30",
+        "Last test case": ""
+      }
+    }
+  ]
