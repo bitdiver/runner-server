@@ -42,7 +42,7 @@
     "@types/p-all": "2.0.0",
     "@types/uuid": "9.0.1",
     "@xhubio/build-base": "1.0.144",
-    "mkdirp": "1.0.4",
+    "mkdirp": "2.1.6",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
