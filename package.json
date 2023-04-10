@@ -43,7 +43,7 @@
     "@types/uuid": "9.0.1",
     "@xhubio/build-base": "1.0.144",
     "mkdirp": "1.0.4",
-    "rimraf": "^3.0.2"
+    "rimraf": "^5.0.0"
   },
   "dependencies": {
     "@bitdiver/definition": "3.0.3",
