@@ -41,7 +41,7 @@
     "@types/luxon": "3.3.0",
     "@types/p-all": "2.0.0",
     "@types/uuid": "9.0.1",
-    "@xhubio/build-base": "1.0.150",
+    "@xhubio/build-base": "1.0.151",
     "mkdirp": "1.0.4",
     "rimraf": "^3.0.2"
   },
