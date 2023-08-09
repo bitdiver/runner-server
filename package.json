@@ -49,7 +49,7 @@
     "@bitdiver/definition": "3.0.3",
     "@bitdiver/logadapter": "2.0.6",
     "@bitdiver/model": "3.2.3",
-    "luxon": "3.3.0",
+    "luxon": "3.4.0",
     "p-all": "3.0.0",
     "ts-progress": "0.1.7",
     "uuid": "9.0.0"
