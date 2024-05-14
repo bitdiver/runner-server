@@ -51,7 +51,7 @@
     "@bitdiver/model": "3.2.9",
     "luxon": "3.4.4",
     "p-all": "3.0.0",
-    "ts-progress": "0.1.7",
+    "ts-progress": "0.1.8",
     "uuid": "9.0.1"
   },
   "keywords": [
