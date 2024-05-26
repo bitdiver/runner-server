@@ -46,7 +46,7 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@bitdiver/definition": "3.0.4",
+    "@bitdiver/definition": "3.0.5",
     "@bitdiver/logadapter": "2.0.12",
     "@bitdiver/model": "3.2.9",
     "luxon": "3.4.4",
