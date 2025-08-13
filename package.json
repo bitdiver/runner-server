@@ -52,7 +52,7 @@
     "luxon": "3.7.1",
     "p-all": "3.0.0",
     "ts-progress": "0.1.8",
-    "uuid": "9.0.1"
+    "uuid": "11.1.0"
   },
   "keywords": [
     "build",
