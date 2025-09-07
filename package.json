@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@bitdiver/definition": "3.0.8",
-    "@bitdiver/logadapter": "2.0.16",
+    "@bitdiver/logadapter": "2.0.17",
     "@bitdiver/model": "3.2.13",
     "luxon": "3.7.2",
     "p-all": "3.0.0",
